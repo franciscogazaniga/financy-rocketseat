@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+  categories   Category[]
+
+  @@map("users")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  description String
+  value       Int
+  type        TransactionType
+  date        DateTime
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade) // Se um autor é deletado, todas suas transações também serão
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict) // Uma categoria não pode ser deletada se tiver transação atrelada
+
+  @@index([authorId, date])
+  @@index([authorId, categoryId])
+  @@index([authorId, type, date])
+  @@map("transactions")
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  title        String        @unique
+  description  String?
+  icon         String
+  color        String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade) // Se um autor é deletado, todas suas categorias também serão
+
+  @@unique([title, authorId])
+  @@map("categories")
+}

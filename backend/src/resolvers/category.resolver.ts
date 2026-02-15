@@ -1,4 +1,4 @@
-import { Arg, FieldResolver, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
+import { Arg, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { UserModel } from "../models/user.model";
 import { IsAuth } from "../middlewares/auth.middleware";
 import { CategoryModel } from "../models/category.model";
@@ -63,6 +63,11 @@ export class CategoryResolver {
       ...transaction,
       value: centsToMoney(transaction.value)
     }))
+  }
+
+  @FieldResolver(() => Int)
+  async transactionsCount(@Root() category: CategoryModel) {
+    return await this.transactionService.transactionsCount(category.id)
   }
 
   @Query(() => CategoryModel)

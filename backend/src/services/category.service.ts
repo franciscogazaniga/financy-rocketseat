@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prismaClient } from "../../prisma/prisma";
 import { CreateCategoryInput, UpdateCategoryInput } from "../dtos/input/category.input";
-import { TransactionFilters } from "../dtos/input/transactionFilters.input";
 import { CategoryFilters } from "../dtos/input/categoryFilters.input";
 
 export class CategoryService {

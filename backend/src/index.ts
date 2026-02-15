@@ -9,9 +9,16 @@ import 'reflect-metadata'
 import { buildContext } from './graphql/context'
 import { CategoryResolver } from './resolvers/category.resolver'
 import { TransactionResolver } from './resolvers/transaction.resolver'
+import cors from "cors"
 
 async function bootstrap() {
   const app = express()
+
+  app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+  }))
+
 
   const schema = await buildSchema({
     resolvers: [AuthResolver, UserResolver, CategoryResolver, TransactionResolver],

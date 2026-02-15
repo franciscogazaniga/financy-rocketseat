@@ -11,6 +11,7 @@ import { centsToMoney } from "../utils/centsToMoney";
 import { UserModel } from "../models/user.model";
 import { UserService } from "../services/user.service";
 import { TransactionFilters } from "../dtos/input/transactionFilters.input";
+import { PaginatedTransactions } from "../models/paginatedTransactions.model";
 
 @Resolver(() => TransactionModel)
 @UseMiddleware(IsAuth)
@@ -72,31 +73,20 @@ export class TransactionResolver {
     return this.categoryService.findById(transaction.categoryId, user.id)
   }
 
-  // @Query(() => [TransactionModel])
-  // async getTransactionsByAuthorId(
-  //   @Arg('authorId', () => String) authorId: string
-  // ): Promise<TransactionModel[]> {
-  //   const transactions =
-  //     await this.transactionService.findByAuthorId(authorId)
-
-  //   return transactions.map(transaction => ({
-  //     ...transaction,
-  //     value: centsToMoney(transaction.value)
-  //   }))
-  // }
-
-  @Query(() => [TransactionModel])
+  @Query(() => PaginatedTransactions)
   async getTransactions(
-    @Arg('filters', () => TransactionFilters, { nullable: true }) filters: TransactionFilters,
+    @Arg('input', () => TransactionFilters, { nullable: true }) input: TransactionFilters,
     @GqlUser() user: User
-  ): Promise<TransactionModel[]> {
-    const transactions =
-      await this.transactionService.findMany(filters, user.id)
+  ): Promise<PaginatedTransactions> {
+    const result = await this.transactionService.list(input, user.id)
 
-    return transactions.map(transaction => ({
-      ...transaction,
-      value: centsToMoney(transaction.value)
-    }))
+    return {
+      ...result,
+      data: result.data.map(transaction => ({
+        ...transaction,
+        value: centsToMoney(transaction.value)
+      }))
+    }
   }
 }
 

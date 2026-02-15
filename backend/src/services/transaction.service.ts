@@ -74,24 +74,85 @@ export class TransactionService {
     }
 
     if (filters?.categoryId) {
-      console.log(filters.categoryId)
       where.categoryId = filters.categoryId
     }
 
-    if (filters?.startDate || filters?.endDate) {
+    if (filters?.date) {
       where.date = {}
-
-      if (filters.startDate) {
-        where.date.gte = filters.startDate
-      }
-
-      if (filters.endDate) {
-        where.date.lte = filters.endDate
-      }
+      where.date.gte = filters.date
     }
 
     return prismaClient.transaction.findMany({
       where
+    })
+  }
+
+  async list(input: TransactionFilters, authorId: string) {
+    const {
+      page = 1,
+      limit = 10,
+      sortField = "createdAt",
+      sortOrder = "desc",
+      description,
+      categoryId,
+      date,
+      type,
+    } = input
+
+    const skip = (page - 1) * limit
+    
+    const where: Prisma.TransactionWhereInput = {
+      authorId,
+    }
+
+    if (description) {
+      where.description = {
+        contains: description,
+        mode: "insensitive"
+      } as Prisma.StringFilter
+    }
+
+    if (categoryId) where.categoryId = categoryId
+    if (type) where.type = type
+
+    if (date) {
+      const start = new Date(date)
+      start.setDate(1)
+      start.setHours(0,0,0,0)
+
+      const end = new Date(start)
+      end.setMonth(end.getMonth() + 1)
+      end.setMilliseconds(-1)
+
+      where.createdAt = {
+        gte: start,
+        lte: end
+      }
+    }
+
+    const [data, total] = await Promise.all([
+      prismaClient.transaction.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          [sortField]: sortOrder
+        }
+      }),
+      prismaClient.transaction.count({ where })
+    ])
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total/limit)
+    }
+  }
+
+  async transactionsCount(categoryId: string) {
+    return prismaClient.transaction.count({
+      where: { categoryId }
     })
   }
 }

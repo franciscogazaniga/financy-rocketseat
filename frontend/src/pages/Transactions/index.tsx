@@ -2,22 +2,44 @@ import { Page } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, Search } from "lucide-react"
-import { CreateTransactionDialog } from "./components/CreateTransactionDialog";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@apollo/client/react";
-import type { Transaction } from "@/types";
+import type { PaginatedTransactions, Transaction } from "@/types";
 import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction";
-import { TransactionRow } from "../Dashboard/components/TransactionRow";
 import { TransactionTable } from "./components/TransactionTable";
+import { cn } from "@/lib/utils";
+import { useDialog } from "@/providers/DialogProvider";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export function Transaction() {
-  const [openDialog, setOpenDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const debouncedSearch = useDebounce(searchQuery, 400)
+  const [searchQueryIsFocused, setSearchQueryIsFocused] = useState(false)
+  const { openDialog } = useDialog()
+  const [ page, setPage ] = useState(1)
 
-  const { data, loading, refetch } = useQuery<{ getTransactions: Transaction[] }>(LIST_TRANSACTIONS)
+  const pageLimit = 10
 
-  const transactions = data?.getTransactions || []
+  const variables = useMemo(() => ({
+    input: {
+      description: debouncedSearch || undefined,
+      limit: pageLimit,
+      page
+    }
+  }), [debouncedSearch, page])
+
+  const { data, loading } = useQuery<{ listTransactions: PaginatedTransactions }>(LIST_TRANSACTIONS, {
+      variables,
+      notifyOnNetworkStatusChange: true,
+      // returnPartialData: true
+  })
+
+  const transactions = data?.listTransactions.data || []
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
 
   return(
     <Page>
@@ -33,17 +55,16 @@ export function Transaction() {
             </span>
           </div>
 
-
-          <Button onClick={() => setOpenDialog(true)}>
+          <Button variant={"default"}
+            onClick={() =>
+              openDialog({
+                type: "createTransaction"
+              })
+            }>
             <Plus className="mr-2 h-4 w-4"/>
             Nova transação
           </Button>
         </div>
-
-        <CreateTransactionDialog 
-          open={openDialog}
-          onOpenChange={setOpenDialog}
-        />
 
         <div className="flex flex-row justify-between bg-white border border-border rounded-[8px] p-6">
           <div className="flex flex-col gap-2">
@@ -52,20 +73,32 @@ export function Transaction() {
             </Label>
 
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"/>
+              <Search className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors",
+                searchQueryIsFocused && "text-brand-base",
+                !!searchQuery && !searchQueryIsFocused && "text-title-primary",
+                !searchQuery && !searchQueryIsFocused && "text-gray-400"
+              )}/>
               <Input
                 id="search"
                 placeholder="Buscar por descrição"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 max-w-[200px]"
+                onFocus={() => setSearchQueryIsFocused(true)}
+                onBlur={() => setSearchQueryIsFocused(false)}
+                className={cn(
+                "pl-9 max-w-[200px]",
+                searchQueryIsFocused && "text-title-primary",
+                !!searchQuery && !searchQueryIsFocused && "text-title-primary",
+                !searchQuery && !searchQueryIsFocused && "text-gray-400"
+              )}
               />
             </div>
 
           </div>
         </div>
 
-        <div className="grid grid-cols-4">
+        <div className="bg-white py-5 border border-border rounded-[8px]">
           {
             loading && 
             Array.from({ length: 4 }).map((_, i) => (
@@ -78,7 +111,14 @@ export function Transaction() {
   
           {
             !loading &&
-            <TransactionTable data={transactions}/>
+            <TransactionTable
+              data={transactions}
+              total={data?.listTransactions.total}
+              page={data?.listTransactions.page}
+              pageLimit={pageLimit}
+              totalPages={data?.listTransactions.totalPages}
+              onPageChange={setPage}
+            />
           }
         </div>
       </div>

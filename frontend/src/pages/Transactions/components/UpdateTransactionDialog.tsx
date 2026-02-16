@@ -3,24 +3,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useEffect } from "react"
 import { useMutation, useQuery } from "@apollo/client/react"
-import { CREATE_TRANSACTION } from "@/lib/graphql/mutations/Transaction"
+import { UPDATE_TRANSACTION } from "@/lib/graphql/mutations/Transaction"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import type { Category } from "@/types"
+import type { Category, Transaction } from "@/types"
 import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { useForm } from "react-hook-form"
-import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
 
-interface CreateTransactionDialogProps {
+interface UpdateTransactionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  transaction: Transaction
 }
 
 type FormState = {
@@ -31,16 +31,17 @@ type FormState = {
   categoryId: string
 }
 
-export function CreateTransactionDialog({
+export function UpdateTransactionDialog({
   open,
   onOpenChange,
-}: CreateTransactionDialogProps) {
+  transaction
+}: UpdateTransactionDialogProps) {
   const { register, handleSubmit, setValue, watch, reset } = useForm<FormState>({
     defaultValues: {
       description: "",
+      value: "",
       type: "",
       date: undefined,
-      value: "",
       categoryId: ""
     }
   })
@@ -59,7 +60,7 @@ export function CreateTransactionDialog({
 
   const numeric = e.target.value.replace(/\D/g, "")
 
-  setValue("value", numeric)
+  setValue("value", numeric) // continua string
 }
 
   const value = watch("value")
@@ -67,14 +68,13 @@ export function CreateTransactionDialog({
   const date = watch("date")
   const categoryId = watch("categoryId")
 
-  const [ createTransaction, { loading } ] = useMutation(CREATE_TRANSACTION, {
-    refetchQueries: [LIST_TRANSACTIONS],
+  const [ updateTransaction, { loading } ] = useMutation(UPDATE_TRANSACTION, {
     onCompleted() {
-      toast.success("Transaction criada com sucesso!")
+      toast.success("Transaction atualizada com sucesso!")
       onOpenChange(false)
     },
     onError() {
-      toast.error("Falha ao criar a transação.")
+      toast.error("Falha ao atualizar a transação.")
     }
   })
 
@@ -89,18 +89,11 @@ export function CreateTransactionDialog({
       return
     }
 
-    if (!data.type) {
-      toast.error("Selecione o tipo da transação")
-      return
-    }
-
-    const valueDecimal = Number(data.value) / 100
-
-    createTransaction({
+    updateTransaction({
       variables: {
+        id: transaction.id,
         data: {
           ...data,
-          value: valueDecimal.toString(),
           date: data.date.toISOString()
         }
       }
@@ -108,15 +101,23 @@ export function CreateTransactionDialog({
   })
 
   useEffect(() => {
-    if(open) reset()
-  }, [open])
+    if (open && transaction) {
+      reset({
+        description: transaction.description,
+        type: transaction.type,
+        date: new Date(transaction.date),
+        value: transaction.value.toString(),
+        categoryId: transaction.categoryId
+      })
+    }
+  }, [open, transaction, reset])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='space-y-2'>
         <DialogHeader>
           <DialogTitle>
-            Nova transação
+            Atualizar transação
           </DialogTitle>
 
           <DialogDescription>

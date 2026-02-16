@@ -40,10 +40,27 @@ export interface Transaction {
   value: number
   type: TransactionType
   date: Date
+  categoryId: string
   author?: User
   category?: Category
   createdAt: Date
   updatedAt?: Date
+}
+
+export interface TransactionFilters {
+  description: string
+  type: TransactionType
+  date: Date
+  categoryId: string
+}
+
+export interface PaginatedTransactions {
+  input?: TransactionFilters
+  data: Transaction[]
+  total: number
+  limit: number
+  page: number
+  totalPages: number
 }
 
 export interface TransactionDTO {
@@ -52,6 +69,7 @@ export interface TransactionDTO {
   value: string
   type: TransactionType
   date: Date
+  categoryId: string
   author?: User
   category?: Category
   createdAt: Date

@@ -25,5 +25,8 @@ export class TransactionFilters {
   categoryId?: string
 
   @Field(() => GraphQLISODateTime, { nullable: true })
-  date?: Date
+  startDate?: Date
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  endDate?: Date
 }

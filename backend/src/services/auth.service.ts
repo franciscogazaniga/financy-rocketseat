@@ -53,7 +53,7 @@ export class AuthService {
     const token = signJwt({
       id: user.id,
       email: user.email
-    }, '15m')
+    }, '60m')
 
     const refreshToken = signJwt({
       id: user.id,

@@ -13,10 +13,9 @@ import { useDialog } from "@/providers/DialogProvider"
 export function TransactionTable({
     data,
     total,
-    pageLimit,
-    page,
     totalPages,
-    onPageChange
+    pagination,
+    onPaginationChange
   }: any) {
   const { openDialog } = useDialog()
 
@@ -30,8 +29,7 @@ export function TransactionTable({
 
     return { start, end }
   }
-
-  const { start, end } = getPaginationRange(total, page, pageLimit)
+  const { start, end } = getPaginationRange(total, pagination.pageIndex + 1, pagination.pageSize)
 
   const columns: ColumnDef<Transaction>[] = [
     {
@@ -169,6 +167,12 @@ export function TransactionTable({
   const table = useReactTable({
     data,
     columns,
+    pageCount: totalPages,
+    state: {
+      pagination
+    },
+    onPaginationChange,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -211,33 +215,41 @@ export function TransactionTable({
       </tbody>
     </table>
 
-    <div className="flex flex-row justify-between gap-2 p-4">
+    <div className="flex flex-row items-center justify-between gap-2 p-4">
       <div>
         <span>{start} a {end} | {total} resultados</span>
       </div>
 
-      <div>
+      <div className="flex flex-row gap-2">
         <button
-          disabled={page === 1}
-          onClick={() => onPageChange(page - 1)}
+          disabled={!table.getCanPreviousPage()}
+          onClick={() => table.previousPage()}
+          className="w-9 h-9 shrink-0 flex items-center justify-center bg-white border border-border p-2 rounded-[8px] disabled:text-gray-300 disabled:border-gray-300"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
         
-        {
-          
-        }
+        <div className="flex flex-row gap-2">
+          {table.getPageOptions().map(p => (
+            <button
+              key={p}
+              onClick={() => table.setPageIndex(p)}
+              className={`${(p === pagination.pageIndex ? "bg-brand-base text-white" : "bg-white")} w-9 h-9 shrink-0 flex items-center justify-center border border-border p-2 rounded-[8px]`}
+            >
+              {p + 1}
+            </button>
+          ))}
+        </div>
+
 
         <button
-          disabled={page === totalPages}
-          onClick={() => onPageChange(page + 1)}
+          disabled={!table.getCanNextPage()}
+          onClick={() => table.nextPage()}
+          className="w-9 h-9 shrink-0 flex items-center justify-center bg-white border border-border p-2 rounded-[8px] disabled:text-gray-300 disabled:border-gray-300"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
-
-
-
     </div>
     </>
   )

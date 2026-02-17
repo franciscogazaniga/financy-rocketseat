@@ -64,30 +64,7 @@ export class TransactionService {
     })
   }
 
-  async findMany(filters: TransactionFilters, authorId: string) {
-    const where: Prisma.TransactionWhereInput = {
-      authorId
-    }
-
-    if (filters?.type) {
-      where.type = filters.type
-    }
-
-    if (filters?.categoryId) {
-      where.categoryId = filters.categoryId
-    }
-
-    if (filters?.date) {
-      where.date = {}
-      where.date.gte = filters.date
-    }
-
-    return prismaClient.transaction.findMany({
-      where
-    })
-  }
-
-  async list(input: TransactionFilters, authorId: string) {
+  async list(authorId: string, input?: TransactionFilters) {
     const {
       page = 1,
       limit = 10,
@@ -95,9 +72,10 @@ export class TransactionService {
       sortOrder = "desc",
       description,
       categoryId,
-      date,
+      startDate,
+      endDate,
       type,
-    } = input
+    } = input ?? {}
 
     const skip = (page - 1) * limit
     
@@ -107,26 +85,17 @@ export class TransactionService {
 
     if (description) {
       where.description = {
-        contains: description,
-        mode: "insensitive"
+        contains: description.toLowerCase(),
       } as Prisma.StringFilter
     }
 
     if (categoryId) where.categoryId = categoryId
     if (type) where.type = type
 
-    if (date) {
-      const start = new Date(date)
-      start.setDate(1)
-      start.setHours(0,0,0,0)
-
-      const end = new Date(start)
-      end.setMonth(end.getMonth() + 1)
-      end.setMilliseconds(-1)
-
+    if (startDate || endDate) {
       where.createdAt = {
-        gte: start,
-        lte: end
+        ...(startDate && { gte: new Date(startDate) }),
+        ...(endDate && { lte: new Date(endDate) })
       }
     }
 

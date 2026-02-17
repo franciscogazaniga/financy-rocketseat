@@ -79,8 +79,8 @@ type PaginatedTransactions {
 type Query {
   getCategories(filters: CategoryFilters): [CategoryModel!]!
   getCategory(id: String!): CategoryModel!
-  getTransactions(input: TransactionFilters): PaginatedTransactions!
   getUser(id: String!): UserModel!
+  listTransactions(input: TransactionFilters): PaginatedTransactions!
 }
 
 input RegisterInput {
@@ -97,12 +97,13 @@ type RegisterOutput {
 
 input TransactionFilters {
   categoryId: String
-  date: DateTimeISO
   description: String
+  endDate: DateTimeISO
   limit: Int! = 10
   page: Int! = 1
   sortField: String
   sortOrder: String
+  startDate: DateTimeISO
   type: TransactionType
 }
 

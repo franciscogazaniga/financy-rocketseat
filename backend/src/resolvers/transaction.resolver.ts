@@ -74,11 +74,11 @@ export class TransactionResolver {
   }
 
   @Query(() => PaginatedTransactions)
-  async getTransactions(
+  async listTransactions(
     @Arg('input', () => TransactionFilters, { nullable: true }) input: TransactionFilters,
     @GqlUser() user: User
   ): Promise<PaginatedTransactions> {
-    const result = await this.transactionService.list(input, user.id)
+    const result = await this.transactionService.list(user.id, input)
 
     return {
       ...result,

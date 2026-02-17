@@ -5,40 +5,104 @@ import { Plus, Search } from "lucide-react"
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@apollo/client/react";
-import type { PaginatedTransactions, Transaction } from "@/types";
+import type { Category, PaginatedTransactions, Transaction } from "@/types";
 import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction";
 import { TransactionTable } from "./components/TransactionTable";
 import { cn } from "@/lib/utils";
 import { useDialog } from "@/providers/DialogProvider";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
+import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config";
 
 export function Transaction() {
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearch = useDebounce(searchQuery, 400)
   const [searchQueryIsFocused, setSearchQueryIsFocused] = useState(false)
+  const [searchCategoryId, setSearchCategoryId] = useState<string | undefined>()
+  const [selectedMonth, setSelectedMonth] = useState<string>("all")
+  const [searchType, setSearchType] = useState<string | undefined>()
   const { openDialog } = useDialog()
-  const [ page, setPage ] = useState(1)
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10
+  })
 
-  const pageLimit = 10
+  function getMonthRange(month?: string) {
+    if (!month || month === "all") return {}
+
+    const [year, monthIndex] = month.split("-").map(Number)
+
+    const startDate = new Date(year, monthIndex - 1, 1)
+
+    const endDate = new Date(year, monthIndex, 0, 23, 59, 59)
+
+    return {
+      startDate,
+      endDate
+    }
+  }
+  const dateRange = useMemo(
+    () => getMonthRange(selectedMonth),
+    [selectedMonth]
+  )
 
   const variables = useMemo(() => ({
     input: {
       description: debouncedSearch || undefined,
-      limit: pageLimit,
-      page
+      type: searchType,
+      categoryId: searchCategoryId,
+      startDate: dateRange.startDate?.toISOString(),
+      endDate: dateRange.endDate?.toISOString(),
+      page: pagination.pageIndex + 1,
+      limit: pagination.pageSize
     }
-  }), [debouncedSearch, page])
+  }), [debouncedSearch, pagination, searchType, searchCategoryId, dateRange])
 
-  const { data, loading } = useQuery<{ listTransactions: PaginatedTransactions }>(LIST_TRANSACTIONS, {
+  const { data: transactionsData, loading } = useQuery<{ listTransactions: PaginatedTransactions }>(LIST_TRANSACTIONS, {
       variables,
       notifyOnNetworkStatusChange: true,
+      fetchPolicy: "cache-and-network",
+      nextFetchPolicy: "cache-first"
       // returnPartialData: true
   })
 
-  const transactions = data?.listTransactions.data || []
+  const transactions = transactionsData?.listTransactions.data || []
+
+  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
+  const categories = categoriesData?.getCategories ?? []
+
+  const types = TRANSACTION_TYPE_CONFIG
+
+  function generateMonthOptions(totalMonths = 12) {
+    const now = new Date()
+
+    return Array.from({ length: totalMonths }).map((_, i) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+
+      const value = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`
+
+      const month = date.toLocaleDateString("pt-BR", {
+        month: "long"
+      })
+
+      const capitalizedMonth =
+        month.charAt(0).toUpperCase() + month.slice(1)
+
+      const label = `${capitalizedMonth} / ${date.getFullYear()}`
+
+      return { value, label }
+    })
+  }
+  const monthOptions = useMemo(() => generateMonthOptions(12), [])
 
   useEffect(() => {
-    setPage(1)
+    setPagination(prev => ({
+      ...prev,
+      pageIndex: 0
+    }))
   }, [debouncedSearch])
 
   return(
@@ -66,8 +130,8 @@ export function Transaction() {
           </Button>
         </div>
 
-        <div className="flex flex-row justify-between bg-white border border-border rounded-[8px] p-6">
-          <div className="flex flex-col gap-2">
+        <div className="flex flex-row justify-between bg-white border border-border rounded-[8px] p-6 gap-4">
+          <div className="w-full flex flex-col gap-2">
             <Label htmlFor="search">
               Buscar
             </Label>
@@ -87,7 +151,7 @@ export function Transaction() {
                 onFocus={() => setSearchQueryIsFocused(true)}
                 onBlur={() => setSearchQueryIsFocused(false)}
                 className={cn(
-                "pl-9 max-w-[200px]",
+                "pl-9",
                 searchQueryIsFocused && "text-title-primary",
                 !!searchQuery && !searchQueryIsFocused && "text-title-primary",
                 !searchQuery && !searchQueryIsFocused && "text-gray-400"
@@ -95,6 +159,105 @@ export function Transaction() {
               />
             </div>
 
+          </div>
+
+          <div className="w-full flex flex-col gap-2">
+            <Label htmlFor="category">
+              Tipo
+            </Label>
+            <Select 
+              value={searchType ?? "all"} 
+              onValueChange={(value) => {
+                const newValue = value === "all" ? undefined : value
+
+                setSearchType(newValue)
+                console.log("searchType", searchType)
+                setPagination(prev => ({
+                  ...prev,
+                  pageIndex: 0
+                }))
+              }}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">
+                  Todos
+                </SelectItem>
+                {Object.entries(types).map(([key, type]) => (
+                  <SelectItem key={key} value={type.name}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-full flex flex-col gap-2">
+            <Label htmlFor="category">
+              Categoria
+            </Label>
+            <Select 
+              value={searchCategoryId ?? "all"} 
+              onValueChange={(value) => {
+                const newValue = value === "all" ? undefined : value
+
+                setSearchCategoryId(newValue)
+
+                setPagination(prev => ({
+                  ...prev,
+                  pageIndex: 0
+                }))
+              }}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">
+                  Todas
+                </SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-full flex flex-col gap-2">
+            <Label htmlFor="category">
+              Período
+            </Label>
+            <Select 
+              value={selectedMonth}
+              onValueChange={(value) => {
+                setSelectedMonth(value)
+                setPagination(prev => ({
+                  ...prev,
+                  pageIndex: 0
+                }))
+              }}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">
+                  Todos
+                </SelectItem>
+                {monthOptions.map(m => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -113,11 +276,10 @@ export function Transaction() {
             !loading &&
             <TransactionTable
               data={transactions}
-              total={data?.listTransactions.total}
-              page={data?.listTransactions.page}
-              pageLimit={pageLimit}
-              totalPages={data?.listTransactions.totalPages}
-              onPageChange={setPage}
+              total={transactionsData?.listTransactions.total}
+              totalPages={transactionsData?.listTransactions.totalPages}
+              pagination={pagination}
+              onPaginationChange={setPagination}
             />
           }
         </div>

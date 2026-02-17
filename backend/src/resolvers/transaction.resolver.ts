@@ -12,6 +12,7 @@ import { UserModel } from "../models/user.model";
 import { UserService } from "../services/user.service";
 import { TransactionFilters } from "../dtos/input/transactionFilters.input";
 import { PaginatedTransactions } from "../models/paginatedTransactions.model";
+import { TransactionsStats } from "../models/transactionsStats.model";
 
 @Resolver(() => TransactionModel)
 @UseMiddleware(IsAuth)
@@ -88,6 +89,13 @@ export class TransactionResolver {
       }))
     }
   }
+
+    @Query(() => TransactionsStats)
+    async getTransactionsStats(
+      @GqlUser() user: User
+    ): Promise<TransactionsStats> {
+      return this.transactionService.getTransactionStats(user.id)
+    }
 }
 
 

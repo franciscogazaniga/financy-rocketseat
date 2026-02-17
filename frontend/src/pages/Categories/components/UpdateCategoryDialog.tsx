@@ -3,18 +3,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useEffect } from "react"
 import { useMutation } from "@apollo/client/react"
-import { CREATE_CATEGORY } from "@/lib/graphql/mutations/Category"
+import { UPDATE_CATEGORY } from "@/lib/graphql/mutations/Category"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { ICON_REGISTRY } from "@/lib/icons-registry"
 import { cn } from "@/lib/utils"
 import { CATEGORY_COLORS } from "@/lib/colors-registry"
 import { useForm } from "react-hook-form"
-import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
+import type { Category } from "@/types"
 
-interface CreateCategoryDialogProps {
+interface UpdateCategoryDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  category: Category
 }
 
 type FormState = {
@@ -24,10 +25,11 @@ type FormState = {
   color: string
 }
 
-export function CreateCategoryDialog({
+export function UpdateCategoryDialog({
   open,
   onOpenChange,
-}: CreateCategoryDialogProps) {
+  category,
+}: UpdateCategoryDialogProps) {
   const { register, handleSubmit, setValue, watch, reset } = useForm<FormState>({
     defaultValues: {
       title: "",
@@ -43,20 +45,20 @@ export function CreateCategoryDialog({
   const icon = watch("icon")
   const color = watch("color")
 
-  const [ createCategory, { loading } ] = useMutation(CREATE_CATEGORY, {
-    refetchQueries: [LIST_CATEGORIES],
+  const [ updateCategory, { loading } ] = useMutation(UPDATE_CATEGORY, {
     onCompleted() {
-      toast.success("Categoria criada com sucesso!")
+      toast.success("Categoria atualizada com sucesso!")
       onOpenChange(false)
     },
     onError() {
-      toast.error("Falha ao criar a categoria.")
+      toast.error("Falha ao atualizar categoria.")
     }
   })
 
   const onSubmit = handleSubmit((data) => {
-    createCategory({
+    updateCategory({
       variables: {
+        id: category.id,
         data: {
           ...data,
         }
@@ -65,15 +67,22 @@ export function CreateCategoryDialog({
   })
 
   useEffect(() => {
-    if(open) reset()
-  }, [open])
+    if (open && category) {
+      reset({
+        title: category.title,
+        description: category.description,
+        icon: category.icon,
+        color: category.color,
+      })
+    }
+  }, [open, category, reset])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='space-y-2'>
         <DialogHeader>
           <DialogTitle>
-            Nova categoria
+            Atualizar categoria
           </DialogTitle>
 
           <DialogDescription>
@@ -104,6 +113,7 @@ export function CreateCategoryDialog({
               className="w-full"
               disabled={loading}
             />
+
             <span className="text-xs text-gray-500 font-light">Opcional</span>
           </div>
 

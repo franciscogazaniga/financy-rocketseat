@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { ApolloProvider } from '@apollo/client/react'
 import { apolloClient } from './lib/graphql/apollo.ts'
-import { DialogProvider } from './providers/dialogProvider.tsx'
+import { DialogProvider } from './providers/DialogProvider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

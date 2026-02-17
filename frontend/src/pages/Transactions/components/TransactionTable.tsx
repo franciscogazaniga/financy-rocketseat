@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table"
 import { ChevronLeft, ChevronRight, CircleArrowDown, CircleArrowUp, SquarePen, Trash } from "lucide-react"
 import { useDialog } from "@/providers/DialogProvider"
+import { formatCurrency } from "@/utils/formatCurrency"
 
 export function TransactionTable({
     data,
@@ -116,10 +117,7 @@ export function TransactionTable({
       accessorKey: "value",
       header: "Valor",
       cell: ({ row }) => {
-        const value = new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(row.original.value)
+        const value = formatCurrency(row.original.value.toString())
 
         const type = row.original.type
 

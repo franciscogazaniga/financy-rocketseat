@@ -1,13 +1,19 @@
 import { createContext, useContext, useState } from "react"
-import type { Transaction } from "@/types"
+import type { Category, Transaction } from "@/types"
 import { UpdateTransactionDialog } from "@/pages/Transactions/components/UpdateTransactionDialog";
 import { CreateTransactionDialog } from "@/pages/Transactions/components/CreateTransactionDialog";
 import { DeleteTransactionDialog } from "@/pages/Transactions/components/DeleteTransactionDialog";
+import { CreateCategoryDialog } from "@/pages/Categories/components/CreateCategoryDialog";
+import { UpdateCategoryDialog } from "@/pages/Categories/components/UpdateCategoryDialog";
+import { DeleteCategoryDialog } from "@/pages/Categories/components/DeleteCategoryDialog";
 
 type DialogType =
   | { type: "updateTransaction"; data: { transaction: Transaction } }
   | { type: "deleteTransaction"; data: { transaction: Transaction } }
   | { type: "createTransaction" }
+  | { type: "createCategory" }
+  | { type: "updateCategory"; data: { category: Category } }
+  | { type: "deleteCategory"; data: { category: Category } }
   | null
 
 interface DialogContextType {
@@ -53,6 +59,29 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
           open
           onOpenChange={closeDialog}
           transaction={dialog.data.transaction}
+        />
+      )}
+
+      {dialog?.type === "createCategory" && (
+        <CreateCategoryDialog
+          open
+          onOpenChange={closeDialog}
+        />
+      )}
+
+      {dialog?.type === "updateCategory" && (
+        <UpdateCategoryDialog
+          open
+          onOpenChange={closeDialog}
+          category={dialog.data.category}
+        />
+      )}
+
+      {dialog?.type === "deleteCategory" && (
+        <DeleteCategoryDialog
+          open
+          onOpenChange={closeDialog}
+          category={dialog.data.category}
         />
       )}
 

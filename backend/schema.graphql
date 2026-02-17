@@ -73,12 +73,16 @@ type PaginatedTransactions {
   data: [TransactionModel!]!
   page: Int
   total: Int
+  totalExpense: Int!
+  totalIncome: Int!
   totalPages: Int
+  totalValue: Int!
 }
 
 type Query {
   getCategories(filters: CategoryFilters): [CategoryModel!]!
   getCategory(id: String!): CategoryModel!
+  getTransactionsStats: TransactionsStats!
   getUser(id: String!): UserModel!
   listTransactions(input: TransactionFilters): PaginatedTransactions!
 }
@@ -124,6 +128,12 @@ type TransactionModel {
 enum TransactionType {
   EXPENSE
   INCOME
+}
+
+type TransactionsStats {
+  mostUsedCategoryId: String!
+  mostUsedCategoryName: String!
+  total: Int!
 }
 
 input UpdateCategoryInput {

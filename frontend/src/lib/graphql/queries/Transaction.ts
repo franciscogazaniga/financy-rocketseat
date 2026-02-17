@@ -27,6 +27,9 @@ export const LIST_TRANSACTIONS = gql`
         updatedAt
       }
       total
+      totalValue
+      totalIncome
+      totalExpense
       page
       totalPages
     }
@@ -57,6 +60,16 @@ export const GET_TRANSACTION = gql`
       }
       createdAt
       updatedAt
+    }
+  }
+`
+
+export const GET_TRANSACTIONS_STATS = gql`
+  query GetTransactionsStats {
+    getTransactionsStats {
+      total
+      mostUsedCategoryId
+      mostUsedCategoryName
     }
   }
 `

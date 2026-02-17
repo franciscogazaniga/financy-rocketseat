@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { useForm } from "react-hook-form"
-import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
+import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
 
 interface CreateTransactionDialogProps {
   open: boolean
@@ -68,7 +68,8 @@ export function CreateTransactionDialog({
   const categoryId = watch("categoryId")
 
   const [ createTransaction, { loading } ] = useMutation(CREATE_TRANSACTION, {
-    refetchQueries: [LIST_TRANSACTIONS],
+    refetchQueries: [LIST_TRANSACTIONS, LIST_CATEGORIES, { query: GET_TRANSACTIONS_STATS }],
+    awaitRefetchQueries: true,
     onCompleted() {
       toast.success("Transaction criada com sucesso!")
       onOpenChange(false)

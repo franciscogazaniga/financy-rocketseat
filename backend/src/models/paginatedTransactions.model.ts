@@ -9,6 +9,15 @@ export class PaginatedTransactions {
   @Field(() => Int, { nullable: true })
   total: number
 
+  @Field(() => Int)
+  totalValue: number
+
+  @Field(() => Int)
+  totalExpense: number
+
+  @Field(() => Int)
+  totalIncome: number
+
   @Field(() => Int, { nullable: true })
   page: number
 

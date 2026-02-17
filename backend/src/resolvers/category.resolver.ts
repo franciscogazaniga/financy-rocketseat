@@ -52,14 +52,15 @@ export class CategoryResolver {
     return this.userService.findUser(category.authorId)
   }
 
-  @FieldResolver(() => TransactionModel)
+  @FieldResolver(() => [TransactionModel])
   async transactions(
     @Root() category: CategoryModel,
     @GqlUser() user: User): Promise<TransactionModel[]> {
-    const transactions =
-      await this.transactionService.findMany({ categoryId: category.id}, user.id)
+    const result = await this.transactionService.list(user.id, {
+      categoryId: category.id
+    })
 
-    return transactions.map(transaction => ({
+    return result.data.map(transaction => ({
       ...transaction,
       value: centsToMoney(transaction.value)
     }))

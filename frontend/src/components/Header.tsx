@@ -26,7 +26,7 @@ export function Header() {
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isDashboardPage ? "default" : "ghost"}
+                variant={isDashboardPage ? "link" : "ghost"}
               >
                 Dashboard
               </Button>
@@ -35,7 +35,7 @@ export function Header() {
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isTransactionsPage ? "default" : "ghost"}
+                variant={isTransactionsPage ? "link" : "ghost"}
               >
                 Transações
               </Button>
@@ -44,7 +44,7 @@ export function Header() {
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isCategoriesPage ? "default" : "ghost"}
+                variant={isCategoriesPage ? "link" : "ghost"}
               >
                 Categorias
               </Button>
@@ -56,7 +56,7 @@ export function Header() {
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isAccountPage ? "default" : "ghost"}
+                variant={isAccountPage ? "link" : "ghost"}
               >
                 <Avatar>
                   <AvatarFallback className="bg-gray-300 text-title-primary">

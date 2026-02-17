@@ -70,7 +70,7 @@ export function UpdateTransactionDialog({
 
   const [ updateTransaction, { loading } ] = useMutation(UPDATE_TRANSACTION, {
     onCompleted() {
-      toast.success("Transaction atualizada com sucesso!")
+      toast.success("Transação atualizada com sucesso!")
       onOpenChange(false)
     },
     onError() {

@@ -54,10 +54,19 @@ export interface TransactionFilters {
   categoryId: string
 }
 
+export interface TransactionsStats {
+  total: number
+  mostUsedCategoryId: string
+  mostUsedCategoryName: string
+}
+
 export interface PaginatedTransactions {
   input?: TransactionFilters
   data: Transaction[]
   total: number
+  totalValue: number
+  totalExpense: number
+  totalIncome: number
   limit: number
   page: number
   totalPages: number

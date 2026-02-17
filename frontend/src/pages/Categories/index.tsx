@@ -2,19 +2,22 @@ import { Page } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowUpDown, Plus, Tag, Utensils } from "lucide-react"
-import { useState } from "react";
-import { CreateCategoryDialog } from "./components/CreateCategoryDialog";
 import { Card } from "./components/Card";
 import { CategoryCard } from "./components/CategoryCard";
 import { useQuery } from "@apollo/client/react";
-import type { Category } from "@/types";
+import type { Category, TransactionsStats } from "@/types";
 import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
+import { useDialog } from "@/providers/DialogProvider";
+import { GET_TRANSACTIONS_STATS } from "@/lib/graphql/queries/Transaction";
 
 export function Category() {
-  const [openDialog, setOpenDialog] = useState(false)
-  const { data, loading, refetch } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
-
+  const { openDialog } = useDialog()
+  const { data, loading } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
   const categories = data?.getCategories || []
+
+  const { data: transactionsStatsData } = useQuery<{ getTransactionsStats: TransactionsStats }>(GET_TRANSACTIONS_STATS)
+
+  const transactionsStats = transactionsStatsData?.getTransactionsStats
 
   return(
     <Page>
@@ -31,40 +34,39 @@ export function Category() {
           </div>
 
 
-          <Button onClick={() => setOpenDialog(true)}>
+          <Button
+            onClick={() =>
+              openDialog({
+                type: "createCategory"
+              })
+            }>
             <Plus className="mr-2 h-4 w-4"/>
             Nova categoria
           </Button>
         </div>
-
-        <CreateCategoryDialog 
-          open={openDialog}
-          onOpenChange={setOpenDialog}
-          onCreated={() => refetch()}
-        />
       </div>
 
       <div className="flex flex-row justify-between">
         <Card 
           icon={<Tag className="text-gray-700" />}
-          content="4"
+          content={categories.length.toString()}
           description="Total de categorias"
         />
 
         <Card 
           icon={<ArrowUpDown className="text-purple-base"/>}
-          content="4"
-          description="Total de categorias"
+          content={transactionsStats?.total?.toString() ?? "0"}
+          description="Total de transações"
         />
 
         <Card 
           icon={<Utensils className="text-blue-base"/>}
-          content="Alimentação"
+          content={transactionsStats?.mostUsedCategoryName ?? "-"}
           description="Categoria mais utilizada"
         />
       </div>
 
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-4 gap-4">
         {
           loading && 
           Array.from({ length: 4 }).map((_, i) => (
@@ -78,10 +80,8 @@ export function Category() {
         {
          !loading && categories.map((category) => (
           <CategoryCard
-            title={category.title}
-            description={category.description}
-            color={category.color}
-            icon={category.icon}
+            key={category.id}
+            category={category}
             numberOfTransactions={category.transactionsCount}
           />
          ))

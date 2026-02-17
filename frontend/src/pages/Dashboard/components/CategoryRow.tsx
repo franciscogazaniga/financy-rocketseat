@@ -1,28 +1,32 @@
-import { CircleArrowDown, CircleArrowUp } from "lucide-react"
+import { getCategoryColor } from "@/lib/colors-registry"
+import type { Category } from "@/types"
+import { formatCurrency } from "@/utils/formatCurrency"
 
 interface CategoryRowProps {
-  title: string
-  numberOf: number
-  value: string
+  category: Category
+  totalValue: string
 }
 
-export function CategoryRow({ title, numberOf, value }: CategoryRowProps) {
+export function CategoryRow({ category, totalValue }: CategoryRowProps) {
+  const formattedValue = formatCurrency(totalValue)
+  const categoryColor = getCategoryColor(category?.color)
+
   return(
     <div className="flex justify-between py-4">
       <div className="flex flex-row gap-4 px-6">
-        <div className="text-sm bg-blue-light text-blue-base border border-transparent rounded-full py-1 px-3">
-          {title}
+        <div className={`text-sm ${categoryColor.bg} ${categoryColor.text} border border-transparent rounded-full py-1 px-3`}>
+          {category.title}
         </div>
       </div>
 
       <div className="flex flex-row items-center gap-4 px-6">
         <div className="text-sm text-foreground">
-          <span>{numberOf} itens</span>
+          <span>{category.transactionsCount} itens</span>
         </div>
 
           <div className="text-title-primary font-medium text-sm flex flex-row gap-2 items-center">
             <span>
-              R$ {value}
+              {formattedValue}
             </span>
 
           </div>

@@ -16,7 +16,7 @@ const buttonVariants = cva(
         outline:
           "px-3 py-3 border border-border bg-white text-sm text-foreground",
         secondary:
-          "bg-white text-title-primary border border-border hover:bg-gray-200",
+          "px-3 py-3 h-fit bg-white text-title-primary border border-border hover:bg-gray-200",
         ghost: "bg-transparent hover:text-brand-base",
         link: "bg-transparent text-brand-base font-normal",
       },

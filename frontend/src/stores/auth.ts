@@ -26,6 +26,7 @@ interface AuthState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
+  setUser: (user: User) => void
   login: (data: LoginInput) => Promise<boolean>
   signup: (data: RegisterInput) => Promise<boolean>
   logout: () => void
@@ -37,6 +38,13 @@ export const useAuthStore = create<AuthState>() (
       user: null,
       token: null,
       isAuthenticated: false,
+
+
+      setUser: (user) =>
+        set({
+          user,
+          isAuthenticated: true,
+        }),
 
       login: async (loginData: LoginInput) => {
         try {
@@ -61,7 +69,6 @@ export const useAuthStore = create<AuthState>() (
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
               },
@@ -102,7 +109,6 @@ export const useAuthStore = create<AuthState>() (
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
               },

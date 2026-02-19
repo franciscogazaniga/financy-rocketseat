@@ -135,7 +135,7 @@ export function TransactionTable({
         return (
           <div className="flex flex-row gap-2">
             <button 
-              className="p-2 border bg-white rounded-[8px]"
+              className="p-2 border bg-white rounded-[8px] hover:bg-border"
               onClick={() => {
                 openDialog({
                   type: "deleteTransaction",
@@ -146,7 +146,7 @@ export function TransactionTable({
               <Trash className="w-4 h-4 text-danger"/>
             </button>
             <button
-              className="p-2 border bg-white rounded-[8px]"
+              className="p-2 border bg-white rounded-[8px] hover:bg-border"
               onClick={() => {
                 openDialog({
                   type: "updateTransaction",
@@ -232,7 +232,7 @@ export function TransactionTable({
             <button
               key={p}
               onClick={() => table.setPageIndex(p)}
-              className={`${(p === pagination.pageIndex ? "bg-brand-base text-white" : "bg-white")} w-9 h-9 shrink-0 flex items-center justify-center border border-border p-2 rounded-[8px]`}
+              className={`${(p === pagination.pageIndex ? "bg-brand-base text-white hover:bg-brand-dark" : "bg-white hover:bg-border")} w-9 h-9 shrink-0 flex items-center justify-center border border-border p-2 rounded-[8px]`}
             >
               {p + 1}
             </button>

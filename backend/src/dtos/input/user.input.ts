@@ -8,3 +8,9 @@ export class CreateUserInput {
   @Field(() => String)
   email!: string
 }
+
+@InputType()
+export class UpdateUserInput {
+  @Field(() => String, { nullable: true })
+  name?: string
+}

@@ -3,6 +3,7 @@ import logo from "@/assets/Logo.svg"
 import { Link, useLocation } from "react-router-dom"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback } from "./ui/avatar"
+import { getInitials } from "@/utils/getInitials"
 
 export function Header() {
   const { user, isAuthenticated } = useAuthStore()
@@ -60,7 +61,7 @@ export function Header() {
               >
                 <Avatar>
                   <AvatarFallback className="bg-gray-300 text-title-primary">
-                    {user?.name?.charAt(0)}
+                    {getInitials(user?.name || "")}
                   </AvatarFallback>
                 </Avatar>
               </Button>

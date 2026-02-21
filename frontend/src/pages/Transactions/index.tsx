@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { useDialog } from "@/providers/DialogProvider";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
+import { GET_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config";
 
 export function Transaction() {
@@ -68,8 +68,8 @@ export function Transaction() {
 
   const transactions = transactionsData?.listTransactions.data || []
 
-  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
-  const categories = categoriesData?.getCategories ?? []
+  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES)
+  const categories = categoriesData?.getCategories || []
 
   const types = TRANSACTION_TYPE_CONFIG
 

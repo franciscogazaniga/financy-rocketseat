@@ -4,7 +4,7 @@ import { SetContextLink } from '@apollo/client/link/context'
 import { ErrorLink } from "@apollo/client/link/error"
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql"
+  uri: import.meta.env.VITE_BACKEND_URL,
 })
 
 const authLink = new SetContextLink((prevContext) => {

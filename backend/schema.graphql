@@ -3,6 +3,21 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type CategoriesStats {
+  author: UserModel
+  authorId: String!
+  color: String!
+  createdAt: DateTimeISO!
+  description: String
+  icon: String!
+  id: ID!
+  title: String!
+  totalValue: Float!
+  transactions: [TransactionModel!]
+  transactionsCount: Float!
+  updatedAt: DateTimeISO!
+}
+
 input CategoryFilters {
   title: String
 }
@@ -17,7 +32,6 @@ type CategoryModel {
   id: ID!
   title: String!
   transactions: [TransactionModel!]
-  transactionsCount: Int
   updatedAt: DateTimeISO!
 }
 
@@ -85,6 +99,7 @@ type Query {
   getCategory(id: String!): CategoryModel!
   getTransactionsStats: TransactionsStats!
   getUser(id: String!): UserModel!
+  listCategoriesWithStats: [CategoriesStats!]!
   listTransactions(input: TransactionFilters): PaginatedTransactions!
 }
 

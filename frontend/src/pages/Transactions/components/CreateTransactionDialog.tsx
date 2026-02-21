@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import type { Category } from "@/types"
-import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
+import { GET_CATEGORIES, LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
@@ -68,7 +68,7 @@ export function CreateTransactionDialog({
   const categoryId = watch("categoryId")
 
   const [ createTransaction, { loading } ] = useMutation(CREATE_TRANSACTION, {
-    refetchQueries: [LIST_TRANSACTIONS, LIST_CATEGORIES, { query: GET_TRANSACTIONS_STATS }],
+    refetchQueries: [LIST_TRANSACTIONS, GET_CATEGORIES, { query: LIST_CATEGORIES }, { query: GET_TRANSACTIONS_STATS }],
     awaitRefetchQueries: true,
     onCompleted() {
       toast.success("Transaction criada com sucesso!")
@@ -86,8 +86,8 @@ export function CreateTransactionDialog({
 
   const types = TRANSACTION_TYPE_CONFIG
 
-  const { data } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
-  const categories = data?.getCategories ?? []
+  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES)
+  const categories = categoriesData?.getCategories || []
 
   const onSubmit = handleSubmit((data) => {
     if (!data.date) {

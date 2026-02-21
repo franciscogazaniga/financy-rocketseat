@@ -12,6 +12,7 @@ import { TransactionService } from "../services/transaction.service";
 import { TransactionModel } from "../models/transaction.model";
 import { TransactionFilters } from "../dtos/input/transactionFilters.input";
 import { centsToMoney } from "../utils/centsToMoney";
+import { CategoriesStats } from "../models/categoriesStats.model";
 
 @Resolver(() => CategoryModel)
 @UseMiddleware(IsAuth)
@@ -66,10 +67,10 @@ export class CategoryResolver {
     }))
   }
 
-  @FieldResolver(() => Int)
-  async transactionsCount(@Root() category: CategoryModel) {
-    return await this.transactionService.transactionsCount(category.id)
-  }
+  // @FieldResolver(() => Int)
+  // async transactionsCount(@Root() category: CategoryModel) {
+  //   return await this.transactionService.getCategoriesStats(category.id)
+  // }
 
   @Query(() => CategoryModel)
   async getCategory(
@@ -88,5 +89,29 @@ export class CategoryResolver {
       await this.categoryService.findMany(filters, user.id)
 
     return categories.map(categories => (categories))
+  }
+
+  @Query(() => [CategoriesStats])
+  async listCategoriesWithStats(@GqlUser() user: User) {
+    const authorId = user.id
+
+    const categories = await this.categoryService.findMany(null, authorId)
+    const stats = await this.transactionService.getCategoriesStats(authorId)
+
+    const statsMap = Object.fromEntries(
+      stats.map(s => [
+        s.categoryId,
+        {
+          count: s._count.id,
+          totalValue: s._sum.value ?? 0,
+        }
+      ])
+    )
+
+    return categories.map(category => ({
+      ...category,
+      transactionsCount: statsMap[category.id]?.count ?? 0,
+      totalValue: statsMap[category.id]?.totalValue ?? 0,
+    }))
   }
 }

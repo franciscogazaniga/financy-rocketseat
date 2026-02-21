@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { CATEGORY_COLORS } from "@/lib/colors-registry"
 import { useForm } from "react-hook-form"
 import type { Category } from "@/types"
+import { GET_CATEGORIES, LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
 
 interface UpdateCategoryDialogProps {
   open: boolean
@@ -46,6 +47,7 @@ export function UpdateCategoryDialog({
   const color = watch("color")
 
   const [ updateCategory, { loading } ] = useMutation(UPDATE_CATEGORY, {
+    refetchQueries: [LIST_CATEGORIES, { query: GET_CATEGORIES }],
     onCompleted() {
       toast.success("Categoria atualizada com sucesso!")
       onOpenChange(false)

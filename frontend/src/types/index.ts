@@ -27,10 +27,14 @@ export interface Category {
   description: string
   icon: CategoryIconName
   color: CategoryColor
-  transactionsCount: number
   author?: User
   createdAt: Date
   updatedAt?: Date
+}
+
+export interface CategoryWithStats extends Category {
+  transactionsCount: number
+  totalValue: number
 }
 
 export interface Transaction {

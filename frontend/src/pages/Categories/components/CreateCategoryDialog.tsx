@@ -10,7 +10,7 @@ import { ICON_REGISTRY } from "@/lib/icons-registry"
 import { cn } from "@/lib/utils"
 import { CATEGORY_COLORS } from "@/lib/colors-registry"
 import { useForm } from "react-hook-form"
-import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
+import { GET_CATEGORIES, LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
 
 interface CreateCategoryDialogProps {
   open: boolean
@@ -44,7 +44,7 @@ export function CreateCategoryDialog({
   const color = watch("color")
 
   const [ createCategory, { loading } ] = useMutation(CREATE_CATEGORY, {
-    refetchQueries: [LIST_CATEGORIES],
+    refetchQueries: [LIST_CATEGORIES, { query: GET_CATEGORIES }],
     onCompleted() {
       toast.success("Categoria criada com sucesso!")
       onOpenChange(false)

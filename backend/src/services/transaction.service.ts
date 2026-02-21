@@ -129,9 +129,16 @@ export class TransactionService {
     }
   }
 
-  async transactionsCount(categoryId: string) {
-    return prismaClient.transaction.count({
-      where: { categoryId }
+  async getCategoriesStats(authorId: string) {
+    return prismaClient.transaction.groupBy({
+      by: ["categoryId"],
+      where: { authorId },
+      _count: {
+        id: true,
+      },
+      _sum: {
+        value: true,
+      },
     })
   }
 

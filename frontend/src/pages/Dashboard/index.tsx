@@ -5,7 +5,7 @@ import { TransactionRow } from "./components/TransactionRow";
 import { CategoryRow } from "./components/CategoryRow";
 import { useQuery } from "@apollo/client/react";
 import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction";
-import type { Category, PaginatedTransactions } from "@/types";
+import type { CategoryWithStats, PaginatedTransactions } from "@/types";
 import { useMemo } from "react";
 import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,13 @@ export function Dashboard() {
   })
   const transactions = transactionsData?.listTransactions.data || []
 
-  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
-  const categories = categoriesData?.getCategories || []
+  const { data: categoriesData } = useQuery<{ listCategoriesWithStats: CategoryWithStats[] }>(LIST_CATEGORIES)
+  const categories = categoriesData?.listCategoriesWithStats || []
+
+  const topCategories = categories
+  .filter(cat => cat.transactionsCount > 0) // filtra categorias sem transações
+  .sort((a, b) => b.transactionsCount - a.transactionsCount) // ordena do mais usado
+  .slice(0, 5)
 
   return(
     <Page>
@@ -112,10 +117,10 @@ export function Dashboard() {
 
               <div className="w-96">
                 { categories?.length ? (
-                  categories.map((category) => (
+                  topCategories.map((category) => (
                     <CategoryRow
                       category={category}
-                      totalValue={"0"}
+                      totalValue={category.totalValue.toString()}
                     />
                   ))
                 ) : (

@@ -54,7 +54,7 @@ export function CategoryCard({category, numberOfTransactions}: CardProps) {
 
       <div className="flex flex-row items-center justify-between gap-1 text-title-primary text-2xl font-medium">
         <span className={`text-sm px-3 py-1 rounded-full ${categoryColor.text} ${categoryColor.bg}`}>{category.title}</span>
-        <span className="text-sm text-foreground">{numberOfTransactions} itens</span>
+        <span className="text-sm text-foreground">{numberOfTransactions} {numberOfTransactions > 1 ? "itens" : "item"}</span>
       </div>
     </div>
   )

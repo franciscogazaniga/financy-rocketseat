@@ -11,11 +11,13 @@ import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import type { Category, Transaction } from "@/types"
-import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
+import { GET_CATEGORIES, LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { useForm } from "react-hook-form"
+import { formatCurrencyFromString } from "@/utils/formatCurrency"
+import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
 
 interface UpdateTransactionDialogProps {
   open: boolean
@@ -46,21 +48,11 @@ export function UpdateTransactionDialog({
     }
   })
 
-  const formatCurrency = (value: string) => {
-    const numeric = value.replace(/\D/g, "")
-
-    const number = Number(numeric) / 100
-
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    }).format(number)
-  }
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const numeric = e.target.value.replace(/\D/g, "")
 
-  setValue("value", numeric) // continua string
+  setValue("value", numeric)
 }
 
   const value = watch("value")
@@ -69,6 +61,7 @@ export function UpdateTransactionDialog({
   const categoryId = watch("categoryId")
 
   const [ updateTransaction, { loading } ] = useMutation(UPDATE_TRANSACTION, {
+    refetchQueries: [LIST_TRANSACTIONS, GET_CATEGORIES, { query: LIST_CATEGORIES }, { query: GET_TRANSACTIONS_STATS }],
     onCompleted() {
       toast.success("Transação atualizada com sucesso!")
       onOpenChange(false)
@@ -85,7 +78,7 @@ export function UpdateTransactionDialog({
 
   const types = TRANSACTION_TYPE_CONFIG
 
-  const { data } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
+  const { data } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES)
   const categories = data?.getCategories ?? []
 
   const onSubmit = handleSubmit((data) => {
@@ -94,11 +87,14 @@ export function UpdateTransactionDialog({
       return
     }
 
+    const valueDecimal = Number(data.value) / 100
+
     updateTransaction({
       variables: {
         id: transaction.id,
         data: {
           ...data,
+          value: valueDecimal.toString(),
           date: data.date.toISOString()
         }
       }
@@ -209,7 +205,7 @@ export function UpdateTransactionDialog({
                 Valor
               </Label>
               <Input 
-                value={formatCurrency(value)}
+                value={formatCurrencyFromString(value)}
                 onChange={handleValueChange}
                 id="value"
                 placeholder="R$ 0,00"

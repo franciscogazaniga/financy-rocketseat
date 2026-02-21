@@ -5,15 +5,15 @@ import { ArrowUpDown, Plus, Tag, Utensils } from "lucide-react"
 import { Card } from "./components/Card";
 import { CategoryCard } from "./components/CategoryCard";
 import { useQuery } from "@apollo/client/react";
-import type { Category, TransactionsStats } from "@/types";
+import type { Category, CategoryWithStats, TransactionsStats } from "@/types";
 import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { useDialog } from "@/providers/DialogProvider";
 import { GET_TRANSACTIONS_STATS } from "@/lib/graphql/queries/Transaction";
 
 export function Category() {
   const { openDialog } = useDialog()
-  const { data, loading } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
-  const categories = data?.getCategories || []
+  const { data: categoriesData, loading } = useQuery<{ listCategoriesWithStats: CategoryWithStats[] }>(LIST_CATEGORIES)
+  const categories = categoriesData?.listCategoriesWithStats || []
 
   const { data: transactionsStatsData } = useQuery<{ getTransactionsStats: TransactionsStats }>(GET_TRANSACTIONS_STATS, {
     fetchPolicy: "network-only"

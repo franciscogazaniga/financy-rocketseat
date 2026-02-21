@@ -16,9 +16,6 @@ export class CategoryModel {
   @Field(() => [TransactionModel], { nullable: true })
   transactions?: TransactionModel[]
 
-  @Field(() => Int, { nullable: true })
-  transactionsCount?: number
-
   @Field(() => String)
   title!: string
 

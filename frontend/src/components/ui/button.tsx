@@ -10,20 +10,22 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "px-3 py-3 h-fit bg-brand-base text-sm text-gray-100 hover:bg-brand-dark",
+          "px-3 py-3 h-fit bg-brand-base text-sm text-gray-100 font-normal hover:bg-brand-dark",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "px-3 py-3 border border-border bg-white text-sm text-foreground",
+          "bg-transparent hover:text-brand-dark",
         secondary:
-          "px-3 py-3 h-fit bg-white text-title-primary border border-border hover:bg-gray-200",
-        ghost: "bg-transparent hover:text-brand-base",
-        link: "bg-transparent text-brand-base font-normal",
+          "px-3 py-3 h-fit bg-white text-title-primary font-normal border border-border hover:bg-gray-200",
+        ghost: "bg-transparent hover:text-brand-base border-b border-transparent hover:border-brand-base",
+        input: "px-3 bg-white border border-border rounded-[8px]",
+        icon: "bg-transparent border border-transparent rounded-[8px] hover:border-border",
+        link: "bg-transparent text-brand-base font-normal border-b border-transparent hover:border-brand-base",
       },
       size: {
         default: "",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
+        sm: "rounded-md text-xs",
+        lg: "rounded-md",
         icon: "h-9 w-9",
       },
     },

@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table"
 import { ChevronLeft, ChevronRight, CircleArrowDown, CircleArrowUp, SquarePen, Trash } from "lucide-react"
 import { useDialog } from "@/providers/DialogProvider"
-import { formatCurrency } from "@/utils/formatCurrency"
+import { formatCurrencyFromString } from "@/utils/formatCurrency"
 
 export function TransactionTable({
     data,
@@ -117,7 +117,7 @@ export function TransactionTable({
       accessorKey: "value",
       header: "Valor",
       cell: ({ row }) => {
-        const value = formatCurrency(row.original.value.toString())
+        const value = formatCurrencyFromString(row.original.value.toString())
 
         const type = row.original.type
 
@@ -195,7 +195,17 @@ export function TransactionTable({
       </thead>
 
       <tbody>
-        {table.getRowModel().rows.map(row => (
+        { table.getRowModel().rows.length === 0 ? (
+          <tr>
+            <td
+              colSpan={table.getAllColumns().length}
+              className="text-center py-10 border-b border-border text-foreground text-sm"
+            >
+              Nenhuma transação encontrada
+            </td>
+          </tr>
+        ) : (
+        table.getRowModel().rows.map(row => (
           <tr 
             className="hover:bg-gray-100"
             key={row.id}>
@@ -209,7 +219,9 @@ export function TransactionTable({
               </td>
             ))}
           </tr>
-        ))}
+        ))
+      )
+      }
       </tbody>
     </table>
 

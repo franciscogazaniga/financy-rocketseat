@@ -2,14 +2,14 @@ import { getCategoryColor } from "@/lib/colors-registry"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { getCategoryIcon } from "@/lib/icons-registry"
 import type { Transaction } from "@/types"
-import { formatCurrency } from "@/utils/formatCurrency"
+import { formatCurrencyFromString } from "@/utils/formatCurrency"
 
 interface TransactionRowProps {
   transaction: Transaction
 }
 
 export function TransactionRow({ transaction }: TransactionRowProps) {
-  const formattedValue = formatCurrency(transaction.value.toString())
+  const formattedValue = formatCurrencyFromString(transaction.value.toString())
 
   const date = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
@@ -24,7 +24,7 @@ export function TransactionRow({ transaction }: TransactionRowProps) {
   const categoryColor = getCategoryColor(transaction.category?.color)
 
   return(
-    <div className="flex justify-between py-4 border-t border-border">
+    <div className="flex justify-between py-4 border-t border-border last:border-b">
       <div className="flex flex-row gap-4 px-6">
         <div className={`${categoryColor.bg} border border-transparent rounded-[8px] p-3`}>
           {<CategoryIcon className={`${categoryColor.bg} ${categoryColor.icon} h-4 w-4`}/>}

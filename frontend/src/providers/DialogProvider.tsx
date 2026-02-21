@@ -21,7 +21,8 @@ interface DialogContextType {
   closeDialog: () => void
 }
 
-const DialogContext = createContext({} as DialogContextType)
+// const DialogContext = createContext({} as DialogContextType)
+const DialogContext = createContext<DialogContextType | undefined>(undefined)
 
 export function DialogProvider({ children }: { children: React.ReactNode }) {
   const [dialog, setDialog] = useState<DialogType>(null)
@@ -89,6 +90,16 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+// export function useDialog() {
+//   return useContext(DialogContext)
+// }
+
 export function useDialog() {
-  return useContext(DialogContext)
+  const context = useContext(DialogContext)
+
+  if (!context) {
+    throw new Error("useDialog must be used within DialogProvider")
+  }
+
+  return context
 }

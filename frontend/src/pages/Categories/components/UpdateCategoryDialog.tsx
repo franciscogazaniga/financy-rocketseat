@@ -50,8 +50,13 @@ export function UpdateCategoryDialog({
       toast.success("Categoria atualizada com sucesso!")
       onOpenChange(false)
     },
-    onError() {
-      toast.error("Falha ao atualizar categoria.")
+    onError(error) {
+      const err = error as any
+
+      const graphQLError =
+        err?.cause?.errors?.[0]?.message
+
+      toast.error(graphQLError ?? error.message)
     }
   })
 
@@ -98,7 +103,8 @@ export function UpdateCategoryDialog({
             <Input 
               {...register("title")}
               placeholder="Ex. Alimentação"
-              className="w-full"
+              className="w-full text-title-primary"
+              required
               disabled={loading}
             />
           </div>
@@ -110,7 +116,7 @@ export function UpdateCategoryDialog({
             <Input 
               {...register("description")}
               placeholder="Descrição da categoria"
-              className="w-full"
+              className="w-full text-title-primary"
               disabled={loading}
             />
 
@@ -129,7 +135,7 @@ export function UpdateCategoryDialog({
                     type="button"
                     onClick={() => setValue("icon", iconSelected)}
                     className={cn(
-                      "h-10 w-10 p-3 rounded-[8px] border hover:border-green-base",
+                      "h-10 w-10 p-3 bg-white rounded-[8px] border hover:border-green-base hover:bg-gray-100",
                       icon === iconSelected && "border-brand-base"
                     )}
                   >

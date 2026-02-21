@@ -3,7 +3,7 @@ import { formatCurrency } from "@/utils/formatCurrency"
 interface CardProps {
   icon: React.ReactNode
   title: string
-  value: string
+  value: number
 }
 
 export function Card({icon, title, value}: CardProps) {
@@ -16,7 +16,7 @@ export function Card({icon, title, value}: CardProps) {
         <span>{title}</span>
       </div>
 
-      <div className="text-title-primary text-2xl font-medium">
+      <div className={`${value < 0 ? "text-red-600" : "text-title-primary"}  text-2xl font-medium`}>
         <span>{formattedValue}</span>
       </div>
     </div>

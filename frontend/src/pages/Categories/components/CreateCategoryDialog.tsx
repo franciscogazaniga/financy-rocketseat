@@ -49,8 +49,13 @@ export function CreateCategoryDialog({
       toast.success("Categoria criada com sucesso!")
       onOpenChange(false)
     },
-    onError() {
-      toast.error("Falha ao criar a categoria.")
+    onError(error) {
+      const err = error as any
+
+      const graphQLError =
+        err?.cause?.errors?.[0]?.message
+
+      toast.error(graphQLError ?? error.message)
     }
   })
 
@@ -89,8 +94,11 @@ export function CreateCategoryDialog({
             <Input 
               {...register("title")}
               placeholder="Ex. Alimentação"
-              className="w-full"
               disabled={loading}
+              required
+              className={cn(
+                "w-full text-title-primary",
+              )}
             />
           </div>
 
@@ -101,7 +109,7 @@ export function CreateCategoryDialog({
             <Input 
               {...register("description")}
               placeholder="Descrição da categoria"
-              className="w-full"
+              className="w-full text-title-primary"
               disabled={loading}
             />
             <span className="text-xs text-gray-500 font-light">Opcional</span>
@@ -119,7 +127,7 @@ export function CreateCategoryDialog({
                     type="button"
                     onClick={() => setValue("icon", iconSelected)}
                     className={cn(
-                      "h-10 w-10 p-3 rounded-[8px] border hover:border-green-base",
+                      "h-10 w-10 p-3 bg-white rounded-[8px] border hover:border-green-base hover:bg-gray-100",
                       icon === iconSelected && "border-brand-base"
                     )}
                   >

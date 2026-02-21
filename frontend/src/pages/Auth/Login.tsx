@@ -7,11 +7,17 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { Eye, EyeClosed, Lock, Mail, UserRoundPlus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function Login() {
   const [email, setEmail] = useState("")
+  const [emailInputIsFocused, setEmailInputIsFocused] = useState(false)
   const [password, setPassword] = useState("")
+  const [passwordInputIsFocused, setPasswordInputIsFocused] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const login = useAuthStore((state) => state.login)
 
@@ -29,9 +35,22 @@ export function Login() {
         toast.success("Login realizado com sucesso!")
       }
     } catch (error) {
-      toast.error("Erro ao realizar o login.")
+      const err = error as any
+
+      const graphQLError =
+        err?.cause?.errors?.[0]?.message
+
+      toast.error(graphQLError ?? err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleShowPassword = () => {
+    if(showPassword) {
+      setShowPassword(false)
+    } else{
+      setShowPassword(true)
     }
   }
 
@@ -52,35 +71,99 @@ export function Login() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="mail@exemplo.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <Label htmlFor="email"
+                  className={cn(
+                      emailInputIsFocused && "text-brand-base",
+                      !!email && !emailInputIsFocused && "text-title-primary",
+                      !email && !emailInputIsFocused && "text-gray-400"
+                )}>
+                  E-mail
+                </Label>
+
+                <div className="relative flex-1">
+                  <Mail className={cn(
+                    "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors",
+                    emailInputIsFocused && "text-brand-base",
+                    !!email && !emailInputIsFocused && "text-title-primary",
+                    !email && !emailInputIsFocused && "text-gray-400"
+                  )}/>
+                  <Input
+                      id="email"
+                      type="email"
+                      placeholder="mail@exemplo.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onFocus={() => setEmailInputIsFocused(true)}
+                      onBlur={() => setEmailInputIsFocused(false)}
+                      required
+                      className={cn(
+                      "pl-9",
+                      emailInputIsFocused && "text-title-primary",
+                      !!email && !emailInputIsFocused && "text-title-primary",
+                      !email && !emailInputIsFocused && "text-gray-400"
+                    )}
+                    />
+                </div>
               </div>  
 
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Digite sua senha"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <Label htmlFor="password"
+                  className={cn(
+                      passwordInputIsFocused && "text-brand-base",
+                      !!password && !passwordInputIsFocused && "text-title-primary",
+                      !password && !passwordInputIsFocused && "text-gray-400"
+                    )}
+                >
+                  Senha
+                </Label>
+                <div className="relative flex-1">
+                  <Lock className={cn(
+                    "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors",
+                    passwordInputIsFocused && "text-brand-base",
+                    !!password && !passwordInputIsFocused && "text-title-primary",
+                    !password && !passwordInputIsFocused && "text-gray-400"
+                  )}/>
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Digite sua senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setPasswordInputIsFocused(true)}
+                    onBlur={() => setPasswordInputIsFocused(false)}
+                    required
+                    className={cn(
+                    "pl-9",
+                    passwordInputIsFocused && "text-title-primary",
+                    !!password && !passwordInputIsFocused && "text-title-primary",
+                    !password && !passwordInputIsFocused && "text-gray-400"
+                  )}
+                  />
+                  <Button 
+                    type="button"
+                    variant={"outline"}
+                    className={cn(
+                      "absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors text-title-primary",
+                    )}
+                    onClick={() => toggleShowPassword()}
+                    >
+                    {
+                      showPassword ?
+                      <Eye className="h-4 w-4"/>
+                      :
+                      <EyeClosed className="h-4 w-4"/>
+                    }
+                  </Button>
+                </div>
               </div>
 
               <div className="flex flex-row justify-between text-sm">
-                <span className="text-label">
-                  Lembrar-me
-                </span>
+               <div className="flex flex-row items-center gap-2">
+                <Checkbox id="terms-checkbox" name="terms-checkbox" />
+                <Label htmlFor="terms-checkbox" className="font-light">Lembrar-me</Label>
+               </div>
 
-                <span className="text-brand-base">
+                <span className="text-brand-base cursor-pointer">
                   Recuperar senha
                 </span>
               </div>
@@ -103,8 +186,8 @@ export function Login() {
 
             <div className="w-full">
               <Link to={"/signup"}>
-                <Button className="w-full" variant={"secondary"}>
-                  Criar conta
+                <Button className="w-full gap-2" variant={"secondary"}>
+                  <UserRoundPlus className="h-4 w-4" /> Criar conta
                 </Button>
               </Link>
             </div>

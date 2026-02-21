@@ -15,14 +15,15 @@ export function Header() {
   const isAccountPage = location.pathname === "/account"
 
   return(
+    <>
+    {isAuthenticated && (
     <div className="w-full bg-white px-16 py-6 border border-b-border">
-      {isAuthenticated && (
         <div className="flex items-center justify-between w-full">
-          <div className="min-w-48">
+          <div>
             <img src={logo} className="h-6" />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center gap-5">
             <Link to="/">
               <Button
                 size="sm"
@@ -57,7 +58,7 @@ export function Header() {
               <Button
                 size="sm"
                 className="gap-2"
-                variant={isAccountPage ? "link" : "ghost"}
+                variant={"outline"}
               >
                 <Avatar>
                   <AvatarFallback className="bg-gray-300 text-title-primary">
@@ -66,11 +67,10 @@ export function Header() {
                 </Avatar>
               </Button>
             </Link>
-  
-
           </div>
         </div>
-      )}
     </div>
+    )}
+    </>
   )
 }

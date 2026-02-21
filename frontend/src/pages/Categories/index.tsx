@@ -15,7 +15,9 @@ export function Category() {
   const { data, loading } = useQuery<{ getCategories: Category[] }>(LIST_CATEGORIES)
   const categories = data?.getCategories || []
 
-  const { data: transactionsStatsData } = useQuery<{ getTransactionsStats: TransactionsStats }>(GET_TRANSACTIONS_STATS)
+  const { data: transactionsStatsData } = useQuery<{ getTransactionsStats: TransactionsStats }>(GET_TRANSACTIONS_STATS, {
+    fetchPolicy: "network-only"
+  })
 
   const transactionsStats = transactionsStatsData?.getTransactionsStats
 

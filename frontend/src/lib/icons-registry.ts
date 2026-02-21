@@ -17,6 +17,10 @@ import {
   Ticket,
   ToolCase,
   Utensils,
+  TreePalm,
+  Hamburger,
+  Shirt,
+  Smile,
 } from "lucide-react"
 
 export const ICON_REGISTRY = {
@@ -37,6 +41,10 @@ export const ICON_REGISTRY = {
   "ticket": Ticket,
   "tool-case": ToolCase,
   "utensils": Utensils,
+  "tree-palm": TreePalm,
+  "hamburger": Hamburger,
+  "shirt": Shirt,
+  "smile": Smile, 
 } as const
 
 export type CategoryIconName = keyof typeof ICON_REGISTRY

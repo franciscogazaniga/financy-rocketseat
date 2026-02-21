@@ -1,5 +1,5 @@
 import { Page } from "@/components/Page";
-import { ChevronRight, CircleArrowDown, CircleArrowUp, Wallet } from "lucide-react"
+import { ChevronRight, CircleArrowDown, CircleArrowUp, Plus, Wallet } from "lucide-react"
 import { Card } from "./components/Card";
 import { TransactionRow } from "./components/TransactionRow";
 import { CategoryRow } from "./components/CategoryRow";
@@ -8,8 +8,12 @@ import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction";
 import type { Category, PaginatedTransactions } from "@/types";
 import { useMemo } from "react";
 import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
+import { Button } from "@/components/ui/button";
+import { useDialog } from "@/providers/DialogProvider";
+import { Link } from "react-router-dom";
 
 export function Dashboard() {
+  const { openDialog } = useDialog()
   const variables = useMemo(() => {
     const now = new Date()
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1) // 1º dia do mês
@@ -39,30 +43,53 @@ export function Dashboard() {
     <Page>
       <div className="space-y-6">
         <div className="flex justify-between gap-6">
-          <Card icon={<Wallet className="mr-2 h-4 w-4 text-purple-base" />} title="Saldo total" value={transactionsData?.listTransactions.totalValue.toString() ?? "0"}/>
-          <Card icon={<CircleArrowUp className="mr-2 h-4 w-4 text-green-base" />} title="Receitas do mês" value={transactionsData?.listTransactions.totalIncome.toString() ?? "0"}/>
-          <Card icon={<CircleArrowDown className="mr-2 h-4 w-4 text-red-base" />} title="Despesas do mês" value={transactionsData?.listTransactions.totalExpense.toString() ?? "0"}/>
+          <Card icon={<Wallet className="mr-2 h-4 w-4 text-purple-base" />} title="Saldo total" value={transactionsData?.listTransactions.totalValue ?? 0}/>
+          <Card icon={<CircleArrowUp className="mr-2 h-4 w-4 text-green-base" />} title="Receitas do mês" value={transactionsData?.listTransactions.totalIncome ?? 0}/>
+          <Card icon={<CircleArrowDown className="mr-2 h-4 w-4 text-red-base" />} title="Despesas do mês" value={transactionsData?.listTransactions.totalExpense ?? 0}/>
         </div>
 
-        <div className="flex flex-row justify-between gap-6">
+        <div className="flex flex-row justify-between gap-6 items-start">
           <div className="w-full flex flex-col gap-6 bg-white border border-border rounded-[8px] py-6">
             <div className="flex flex-row justify-between px-6">
               <span className="text-title-secondary text-xs uppercase">Transações Recentes</span>
               <div className="flex flex-row text-brand-base text-xs">
-                <span>Ver todas</span>
-                <ChevronRight className="h-4 w-4" />
+                <Link to="/transactions">
+                  <Button
+                    size="sm"
+                    variant={"outline"}
+                  >
+                    Ver todas
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
 
             <div>
-              {
+              {transactions?.length ? (
                 transactions.map((transaction) => (
                   <TransactionRow 
                     key={transaction.id}
                     transaction={transaction}
                   />
                 ))
+              ) : (
+                  <div className="flex items-center justify-center text-foreground text-sm font-light border-y border-border p-8">
+                    Nenhuma transação registrada
+                  </div>
+                )
               }
+            </div>
+
+            <div className="flex items-center justify-center font-medium text-brand-base hover:text-dark-base">
+              <Button variant={"outline"}
+                onClick={() =>
+                openDialog({
+                  type: "createTransaction"
+                })
+              }>
+                <Plus className="w-5 h-5"/> Nova transação
+              </Button>
             </div>
           </div>
 
@@ -71,27 +98,36 @@ export function Dashboard() {
               <div className="w-full flex flex-row justify-between px-6 border-b border-border pb-6">
                 <span className="text-title-secondary text-xs uppercase">Categorias</span>
                 <div className="flex flex-row text-brand-base text-xs">
-                  <span>Gerenciar</span>
-                  <ChevronRight className="h-4 w-4" />
+                  <Link to="/categories">
+                    <Button
+                      size="sm"
+                      variant={"outline"}
+                    >
+                      Gerenciar
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
 
               <div className="w-96">
-                {
+                { categories?.length ? (
                   categories.map((category) => (
                     <CategoryRow
                       category={category}
                       totalValue={"0"}
                     />
                   ))
+                ) : (
+                  <div className="flex items-center justify-center text-foreground text-sm font-light p-8">
+                    Nenhuma categoria registrada
+                  </div>
+                )
                 }
               </div>
             </div>
           </div>
         </div>
-
-
-
       </div>
     </Page>
   )

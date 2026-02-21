@@ -4,7 +4,7 @@ import { DELETE_TRANSACTION } from "@/lib/graphql/mutations/Transaction"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import type { Transaction } from "@/types"
-import { LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
+import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
 
 interface DeleteTransactionDialogProps {
   open: boolean
@@ -18,7 +18,7 @@ export function DeleteTransactionDialog({
   transaction
 }: DeleteTransactionDialogProps) {
   const [ deleteTransaction, { loading } ] = useMutation(DELETE_TRANSACTION, {
-    refetchQueries: [LIST_TRANSACTIONS],
+    refetchQueries: [LIST_TRANSACTIONS, GET_TRANSACTIONS_STATS],
     onCompleted() {
       toast.success("Transação deletada com sucesso!")
       onOpenChange(false)

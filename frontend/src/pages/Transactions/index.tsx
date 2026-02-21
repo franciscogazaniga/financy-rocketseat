@@ -33,9 +33,8 @@ export function Transaction() {
 
     const [year, monthIndex] = month.split("-").map(Number)
 
-    const startDate = new Date(year, monthIndex - 1, 1)
-
-    const endDate = new Date(year, monthIndex, 0, 23, 59, 59)
+    const startDate = new Date(Date.UTC(year, monthIndex - 1, 1))
+    const endDate = new Date(Date.UTC(year, monthIndex, 1)) 
 
     return {
       startDate,
@@ -203,9 +202,7 @@ export function Transaction() {
               value={searchCategoryId ?? "all"} 
               onValueChange={(value) => {
                 const newValue = value === "all" ? undefined : value
-
                 setSearchCategoryId(newValue)
-
                 setPagination(prev => ({
                   ...prev,
                   pageIndex: 0

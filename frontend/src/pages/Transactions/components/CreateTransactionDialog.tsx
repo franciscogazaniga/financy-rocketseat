@@ -74,8 +74,13 @@ export function CreateTransactionDialog({
       toast.success("Transaction criada com sucesso!")
       onOpenChange(false)
     },
-    onError() {
-      toast.error("Falha ao criar a transação.")
+    onError(error) {
+      const err = error as any
+
+      const graphQLError =
+        err?.cause?.errors?.[0]?.message
+
+      toast.error(graphQLError ?? error.message)
     }
   })
 
@@ -131,9 +136,9 @@ export function CreateTransactionDialog({
               type="button"
               className={`
                 text-sm w-full flex flex-row items-center justify-center gap-3
-                text-title-primary py-2 border rounded-[8px]
+                py-2 border rounded-[8px]
                 ${type === "EXPENSE"
-                  ? "border-red-base bg-gray-100 hover:border-red-base"
+                  ? "font-medium text-title-primary border-red-base bg-gray-100 hover:border-red-base"
                   : "border-transparent bg-white hover:border-border"}
               `}
               onClick={() => setValue("type", types.EXPENSE.name, { shouldDirty: true })}
@@ -147,9 +152,9 @@ export function CreateTransactionDialog({
               type="button"
               className={`
                 text-sm w-full flex flex-row items-center justify-center gap-3
-                text-title-primary py-2 border rounded-[8px]
+                py-2 border rounded-[8px]
                 ${type === "INCOME"
-                  ? "border-green-base bg-gray-100 hover:border-green-base"
+                  ? "text-title-primary font-medium border-green-base bg-gray-100 hover:border-green-base"
                   : "border-transparent bg-white hover:border-border"}
               `}
               onClick={() => setValue("type", types.INCOME.name, { shouldDirty: true })}
@@ -169,7 +174,8 @@ export function CreateTransactionDialog({
               {...register("description")}
               id="description"
               placeholder="Ex. Almoço no restaurante"
-              className="w-full"
+              required
+              className="w-full text-title-primary"
               disabled={loading}
             />
           </div>
@@ -181,7 +187,7 @@ export function CreateTransactionDialog({
               </Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button type="button" variant="outline" className="w-full justify-start py-3">
+                  <Button type="button" variant="input" className={`w-full justify-start py-3 ${date ? "text-title-primary" : "text-foreground" }`}>
                     {date ? format(date, "dd/MM/yyyy", { locale: ptBR }) : "Selecione"}
                   </Button>
                 </PopoverTrigger>
@@ -219,7 +225,7 @@ export function CreateTransactionDialog({
               Categoria
             </Label>
             <Select value={categoryId} onValueChange={(value) => setValue("categoryId", value)}>
-              <SelectTrigger className="w-full bg-white">
+              <SelectTrigger className={`w-full bg-white ${categoryId ? "text-title-primary" : "text-foreground font-light" }`}>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
 

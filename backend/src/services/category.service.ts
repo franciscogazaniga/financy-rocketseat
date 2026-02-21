@@ -7,7 +7,10 @@ export class CategoryService {
   async createCategory(data: CreateCategoryInput, authorId: string) {
     const findCategory = await prismaClient.category.findUnique({
       where: {
-        title: data.title
+        title_authorId: {
+          title: data.title,
+          authorId: authorId,
+        }
       }
     })
 

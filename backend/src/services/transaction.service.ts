@@ -64,61 +64,6 @@ export class TransactionService {
     })
   }
 
-  // async list(authorId: string, input?: TransactionFilters) {
-  //   const {
-  //     page = 1,
-  //     limit = 10,
-  //     sortField = "createdAt",
-  //     sortOrder = "desc",
-  //     description,
-  //     categoryId,
-  //     startDate,
-  //     endDate,
-  //     type,
-  //   } = input ?? {}
-
-  //   const skip = (page - 1) * limit
-    
-  //   const where: Prisma.TransactionWhereInput = {
-  //     authorId,
-  //   }
-
-  //   if (description) {
-  //     where.description = {
-  //       contains: description.toLowerCase(),
-  //     } as Prisma.StringFilter
-  //   }
-
-  //   if (categoryId) where.categoryId = categoryId
-  //   if (type) where.type = type
-
-  //   if (startDate || endDate) {
-  //     where.createdAt = {
-  //       ...(startDate && { gte: new Date(startDate) }),
-  //       ...(endDate && { lte: new Date(endDate) })
-  //     }
-  //   }
-
-  //   const [data, total] = await Promise.all([
-  //     prismaClient.transaction.findMany({
-  //       where,
-  //       skip,
-  //       take: limit,
-  //       orderBy: {
-  //         [sortField]: sortOrder
-  //       }
-  //     }),
-  //     prismaClient.transaction.count({ where })
-  //   ])
-
-  //   return {
-  //     data,
-  //     total,
-  //     page,
-  //     totalPages: Math.ceil(total/limit)
-  //   }
-  // }
-
   async list(authorId: string, input?: TransactionFilters) {
     const {
       page = 1,
@@ -146,13 +91,13 @@ export class TransactionService {
     if (type) where.type = type
 
     if (startDate || endDate) {
-      where.createdAt = {
+      where.date = {
         ...(startDate && { gte: new Date(startDate) }),
-        ...(endDate && { lte: new Date(endDate) }),
+        ...(endDate && { lt: new Date(endDate) }),
       }
     }
 
-    const [data, total, totalValueResult, totalIncomeResult, totalExpenseResult] = await Promise.all([
+    const [data, total, totalIncomeResult, totalExpenseResult] = await Promise.all([
       prismaClient.transaction.findMany({
         where,
         skip,
@@ -160,10 +105,6 @@ export class TransactionService {
         orderBy: { [sortField]: sortOrder },
       }),
       prismaClient.transaction.count({ where }),
-      prismaClient.transaction.aggregate({
-        where,
-        _sum: { value: true },
-      }),
       prismaClient.transaction.aggregate({
         where: { ...where, type: "INCOME" },
         _sum: { value: true },
@@ -174,16 +115,20 @@ export class TransactionService {
       }),
     ])
 
+    const totalIncome = totalIncomeResult._sum.value ?? 0
+    const totalExpense = totalExpenseResult._sum.value ?? 0
+
     return {
       data,
       total,
       page,
       totalPages: Math.ceil(total / limit),
-      totalValue: totalValueResult._sum.value ?? 0,
-      totalIncome: totalIncomeResult._sum.value ?? 0,
-      totalExpense: totalExpenseResult._sum.value ?? 0,
+      totalValue: totalIncome - totalExpense,
+      totalIncome: totalIncome,
+      totalExpense: totalExpense,
     }
   }
+
   async transactionsCount(categoryId: string) {
     return prismaClient.transaction.count({
       where: { categoryId }

@@ -52,7 +52,7 @@ model Transaction {
 
 model Category {
   id           String        @id @default(uuid())
-  title        String        @unique
+  title        String
   description  String?
   icon         String
   color        String

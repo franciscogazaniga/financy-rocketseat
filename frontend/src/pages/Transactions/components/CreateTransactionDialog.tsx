@@ -17,6 +17,7 @@ import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { useForm } from "react-hook-form"
 import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
+import { formatCurrencyFromString } from "@/utils/formatCurrency"
 
 interface CreateTransactionDialogProps {
   open: boolean
@@ -45,16 +46,6 @@ export function CreateTransactionDialog({
     }
   })
 
-  const formatCurrency = (value: string) => {
-    const numeric = value.replace(/\D/g, "")
-
-    const number = Number(numeric) / 100
-
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    }).format(number)
-  }
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const numeric = e.target.value.replace(/\D/g, "")
@@ -210,7 +201,7 @@ export function CreateTransactionDialog({
                 Valor
               </Label>
               <Input 
-                value={formatCurrency(value)}
+                value={formatCurrencyFromString(value)}
                 onChange={handleValueChange}
                 id="value"
                 placeholder="R$ 0,00"

@@ -1,22 +1,22 @@
 import { getCategoryColor } from "@/lib/colors-registry"
-import type { Category } from "@/types"
-import { formatCurrencyFromString } from "@/utils/formatCurrency"
+import type { CategoryWithStats } from "@/types"
+import { formatCurrency } from "@/utils/formatCurrency"
 import { truncateText } from "@/utils/truncateText"
 
 interface CategoryRowProps {
-  category: Category
-  totalValue: string
+  category: CategoryWithStats
+  totalValue: number
 }
 
 export function CategoryRow({ category, totalValue }: CategoryRowProps) {
-  const formattedValue = formatCurrencyFromString(totalValue)
+  const formattedValue = formatCurrency(totalValue)
   const categoryColor = getCategoryColor(category?.color)
 
   return(
     <div className="flex justify-between py-2">
       <div className="flex flex-row gap-4 px-6">
         <div className={`text-sm ${categoryColor.bg} ${categoryColor.text} rounded-full py-1 px-3`}>
-          {truncateText(category.title, 20)}
+          {truncateText(category.title, 15)}
         </div>
       </div>
 

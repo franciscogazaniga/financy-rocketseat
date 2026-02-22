@@ -27,8 +27,8 @@ export class TransactionModel {
   @Field(() => String)
   description!: string
 
-  @Field(() => String)
-  value!: string
+  @Field(() => Number)
+  value!: number
 
   @Field(() => TransactionType)
   type!: TransactionType

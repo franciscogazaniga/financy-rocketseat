@@ -9,7 +9,9 @@ import {
 } from "@tanstack/react-table"
 import { ChevronLeft, ChevronRight, CircleArrowDown, CircleArrowUp, SquarePen, Trash } from "lucide-react"
 import { useDialog } from "@/providers/DialogProvider"
-import { formatCurrencyFromString } from "@/utils/formatCurrency"
+import { formatCurrency } from "@/utils/formatCurrency"
+import { truncateText } from "@/utils/truncateText"
+// import { formatCurrencyFromString } from "@/utils/formatCurrency"
 
 export function TransactionTable({
     data,
@@ -49,7 +51,7 @@ export function TransactionTable({
             <div className={`p-3 rounded-[8px] ${color.bg}`}>
               <Icon className={`w-4 h-4 ${color.text}`} />
             </div>
-            { description }
+            { truncateText(description, 55) }
           </div>
         )
       }
@@ -81,7 +83,7 @@ export function TransactionTable({
 
         return (
           <div className={`w-fit rounded-full text-sm px-3 py-1 ${color.text} ${color.bg}`}>
-            { category }
+            { truncateText(category, 15) }
           </div>
         )
       }
@@ -117,8 +119,8 @@ export function TransactionTable({
       accessorKey: "value",
       header: "Valor",
       cell: ({ row }) => {
-        const value = formatCurrencyFromString(row.original.value.toString())
-
+        const value = formatCurrency(row.original.value)
+        
         const type = row.original.type
 
         return (

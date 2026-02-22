@@ -1,3 +1,5 @@
+import { truncateText } from "@/utils/truncateText"
+
 interface CardProps {
   icon: React.ReactNode
   description: string
@@ -11,7 +13,7 @@ export function Card({icon, description, content}: CardProps) {
         {icon}
       </div>
       <div className="flex flex-col gap-1 text-title-primary text-2xl font-medium">
-        <span className="text-[28px] text-title-primary">{content}</span>
+        <span className="text-[28px] text-title-primary">{truncateText(content, 25)}</span>
         <span className="text-xs text-title-secondary uppercase">{description}</span>
       </div>
     </div>

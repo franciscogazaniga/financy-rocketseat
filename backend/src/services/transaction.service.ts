@@ -2,7 +2,6 @@ import { Prisma } from "@prisma/client";
 import { prismaClient } from "../../prisma/prisma";
 import { CreateTransactionInput, UpdateTransactionInput } from "../dtos/input/transaction.input";
 import { TransactionFilters } from "../dtos/input/transactionFilters.input";
-import { moneyToCents } from "../utils/moneyToCents";
 
 export class TransactionService {
   async createTransaction(data: CreateTransactionInput, authorId: string) {
@@ -15,7 +14,7 @@ export class TransactionService {
         authorId: authorId,
         categoryId: data.categoryId,
         description: data.description,
-        value: moneyToCents(data.value),
+        value: data.value,
         date: data.date,
         type: data.type,
       }
@@ -33,12 +32,13 @@ export class TransactionService {
     if(!transaction) {
       throw new Error('Transação não encontrada.')
     }
+
     return prismaClient.transaction.update({
       where: { id },
       data: {
         categoryId: data.categoryId,
         description: data.description,
-        value: moneyToCents(data.value),
+        value: data.value,
         date: data.date,
         type: data.type,
       }

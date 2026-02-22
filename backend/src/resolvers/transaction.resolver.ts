@@ -33,7 +33,7 @@ export class TransactionResolver {
 
     return {
       ...transaction,
-      value: centsToMoney(transaction.value)
+      value: transaction.value
     }
   }
 
@@ -47,7 +47,7 @@ export class TransactionResolver {
 
     return {
       ...transaction,
-      value: centsToMoney(transaction.value)
+      value: transaction.value
     }
   }
 
@@ -85,7 +85,7 @@ export class TransactionResolver {
       ...result,
       data: result.data.map(transaction => ({
         ...transaction,
-        value: centsToMoney(transaction.value)
+        value: transaction.value
       }))
     }
   }

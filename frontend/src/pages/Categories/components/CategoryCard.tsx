@@ -2,6 +2,7 @@ import { getCategoryColor } from "@/lib/colors-registry"
 import { getCategoryIcon } from "@/lib/icons-registry"
 import { useDialog } from "@/providers/DialogProvider"
 import type { Category } from "@/types"
+import { truncateText } from "@/utils/truncateText"
 import { SquarePen, Trash } from "lucide-react"
 
 interface CardProps {
@@ -48,12 +49,12 @@ export function CategoryCard({category, numberOfTransactions}: CardProps) {
       </div>
 
       <div className="flex flex-col gap-1 text-title-primary text-2xl font-medium">
-        <span className="text-base text-title-primary">{category.title}</span>
-        <span className="text-sm text-foreground">{category.description}</span>
+        <span className="text-base text-title-primary">{truncateText(category.title, 25)}</span>
+        <span className="text-sm text-foreground">{truncateText(category.description, 60)}</span>
       </div>
 
       <div className="flex flex-row items-center justify-between gap-1 text-title-primary text-2xl font-medium">
-        <span className={`text-sm px-3 py-1 rounded-full ${categoryColor.text} ${categoryColor.bg}`}>{category.title}</span>
+        <span className={`text-sm px-3 py-1 rounded-full ${categoryColor.text} ${categoryColor.bg}`}>{truncateText(category.title, 15)}</span>
         <span className="text-sm text-foreground">{numberOfTransactions} {numberOfTransactions > 1 ? "itens" : "item"}</span>
       </div>
     </div>

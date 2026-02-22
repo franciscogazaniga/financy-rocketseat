@@ -47,7 +47,7 @@ input CreateTransactionInput {
   date: DateTimeISO!
   description: String!
   type: TransactionType!
-  value: String!
+  value: Float!
 }
 
 input CreateUserInput {
@@ -138,7 +138,7 @@ type TransactionModel {
   id: ID!
   type: TransactionType!
   updatedAt: DateTimeISO!
-  value: String!
+  value: Float!
 }
 
 enum TransactionType {
@@ -164,7 +164,7 @@ input UpdateTransactionInput {
   date: DateTimeISO
   description: String
   type: TransactionType
-  value: String
+  value: Float
 }
 
 input UpdateUserInput {

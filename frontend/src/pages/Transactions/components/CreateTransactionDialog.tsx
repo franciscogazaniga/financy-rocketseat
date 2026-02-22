@@ -17,7 +17,8 @@ import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { useForm } from "react-hook-form"
 import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
-import { formatCurrencyFromString } from "@/utils/formatCurrency"
+import { formatCurrency } from "@/utils/formatCurrency"
+import { truncateText } from "@/utils/truncateText"
 
 interface CreateTransactionDialogProps {
   open: boolean
@@ -28,7 +29,7 @@ type FormState = {
   description: string
   type: string
   date?: Date
-  value: string
+  value: number
   categoryId: string
 }
 
@@ -41,7 +42,7 @@ export function CreateTransactionDialog({
       description: "",
       type: "",
       date: undefined,
-      value: "",
+      value: 0,
       categoryId: ""
     }
   })
@@ -49,8 +50,9 @@ export function CreateTransactionDialog({
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const numeric = e.target.value.replace(/\D/g, "")
+  const cents = Number(numeric)
 
-  setValue("value", numeric)
+  setValue("value", cents)
 }
 
   const value = watch("value")
@@ -91,13 +93,10 @@ export function CreateTransactionDialog({
       return
     }
 
-    const valueDecimal = Number(data.value) / 100
-
     createTransaction({
       variables: {
         data: {
           ...data,
-          value: valueDecimal.toString(),
           date: data.date.toISOString()
         }
       }
@@ -201,8 +200,9 @@ export function CreateTransactionDialog({
                 Valor
               </Label>
               <Input 
-                value={formatCurrencyFromString(value)}
+                value={formatCurrency(value)}
                 onChange={handleValueChange}
+                inputMode="numeric"
                 id="value"
                 placeholder="R$ 0,00"
                 className="w-full"
@@ -223,7 +223,7 @@ export function CreateTransactionDialog({
               <SelectContent>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
-                    {cat.title}
+                    {truncateText(cat.title,40)}
                   </SelectItem>
                 ))}
               </SelectContent>

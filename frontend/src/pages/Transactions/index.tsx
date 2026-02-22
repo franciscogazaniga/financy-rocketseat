@@ -14,6 +14,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GET_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config";
+import { truncateText } from "@/utils/truncateText";
 
 export function Transaction() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -219,7 +220,7 @@ export function Transaction() {
                 </SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
-                    {cat.title}
+                    {truncateText(cat.title,40)}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -40,7 +40,7 @@ export function Dashboard() {
   const categories = categoriesData?.listCategoriesWithStats || []
 
   const topCategories = categories
-  .filter(cat => cat.transactionsCount > 0) // filtra categorias sem transações
+  .slice()
   .sort((a, b) => b.transactionsCount - a.transactionsCount) // ordena do mais usado
   .slice(0, 5)
 
@@ -120,7 +120,7 @@ export function Dashboard() {
                   topCategories.map((category) => (
                     <CategoryRow
                       category={category}
-                      totalValue={category.totalValue.toString()}
+                      totalValue={category.totalValue}
                     />
                   ))
                 ) : (

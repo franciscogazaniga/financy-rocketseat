@@ -5,6 +5,8 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import type { Transaction } from "@/types"
 import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
+import { GET_CATEGORIES, LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
+import { truncateText } from "@/utils/truncateText"
 
 interface DeleteTransactionDialogProps {
   open: boolean
@@ -18,7 +20,7 @@ export function DeleteTransactionDialog({
   transaction
 }: DeleteTransactionDialogProps) {
   const [ deleteTransaction, { loading } ] = useMutation(DELETE_TRANSACTION, {
-    refetchQueries: [LIST_TRANSACTIONS, GET_TRANSACTIONS_STATS],
+    refetchQueries: [LIST_TRANSACTIONS, GET_CATEGORIES, { query: LIST_CATEGORIES }, { query: GET_TRANSACTIONS_STATS }],
     onCompleted() {
       toast.success("Transação deletada com sucesso!")
       onOpenChange(false)
@@ -45,7 +47,7 @@ export function DeleteTransactionDialog({
           </DialogTitle>
 
           <DialogDescription>
-            Tem certeza que deseja deletar a transação {transaction.description}?
+            Tem certeza que deseja deletar a transação {truncateText(transaction.description, 40)}?
           </DialogDescription>
         </DialogHeader>
 

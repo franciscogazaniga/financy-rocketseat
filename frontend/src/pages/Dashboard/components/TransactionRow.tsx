@@ -2,14 +2,15 @@ import { getCategoryColor } from "@/lib/colors-registry"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { getCategoryIcon } from "@/lib/icons-registry"
 import type { Transaction } from "@/types"
-import { formatCurrencyFromString } from "@/utils/formatCurrency"
+import { formatCurrency } from "@/utils/formatCurrency"
+import { truncateText } from "@/utils/truncateText"
 
 interface TransactionRowProps {
   transaction: Transaction
 }
 
 export function TransactionRow({ transaction }: TransactionRowProps) {
-  const formattedValue = formatCurrencyFromString(transaction.value.toString())
+  const formattedValue = formatCurrency(transaction.value)
 
   const date = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
@@ -31,14 +32,14 @@ export function TransactionRow({ transaction }: TransactionRowProps) {
         </div>
 
         <div className="flex flex-col gap-[2px]">
-          <span className="text-title-primary text-base">{transaction.description}</span>
+          <span className="text-title-primary text-base">{truncateText(transaction.description, 30)}</span>
           <span className="text-foreground text-sm">{date}</span>
         </div>
       </div>
 
       <div className="flex flex-row items-center gap-11 px-6">
         <div className={`text-sm ${categoryColor.bg} ${categoryColor.text} py-1 px-3 rounded-full`}>
-          <span>{transaction.category?.title}</span>
+          <span>{truncateText(transaction.category?.title, 20)}</span>
         </div>
 
         <div className="text-title-primary text-sm font-medium items-center justify-center">

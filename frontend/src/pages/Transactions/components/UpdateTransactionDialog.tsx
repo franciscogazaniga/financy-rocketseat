@@ -16,8 +16,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react"
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config"
 import { useForm } from "react-hook-form"
-import { formatCurrencyFromString } from "@/utils/formatCurrency"
 import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
+import { formatCurrency } from "@/utils/formatCurrency"
+import { truncateText } from "@/utils/truncateText"
 
 interface UpdateTransactionDialogProps {
   open: boolean
@@ -29,7 +30,7 @@ type FormState = {
   description: string
   type: string
   date?: Date
-  value: string
+  value: number
   categoryId: string
 }
 
@@ -38,10 +39,12 @@ export function UpdateTransactionDialog({
   onOpenChange,
   transaction
 }: UpdateTransactionDialogProps) {
+  // const [cents, setCents] = useState(0)
+
   const { register, handleSubmit, setValue, watch, reset } = useForm<FormState>({
     defaultValues: {
       description: "",
-      value: "",
+      value: 0,
       type: "",
       date: undefined,
       categoryId: ""
@@ -49,10 +52,10 @@ export function UpdateTransactionDialog({
   })
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numeric = e.target.value.replace(/\D/g, "")
+    const cents = Number(numeric)
 
-  const numeric = e.target.value.replace(/\D/g, "")
-
-  setValue("value", numeric)
+    setValue("value", cents)
 }
 
   const value = watch("value")
@@ -87,14 +90,12 @@ export function UpdateTransactionDialog({
       return
     }
 
-    const valueDecimal = Number(data.value) / 100
-
     updateTransaction({
       variables: {
         id: transaction.id,
         data: {
           ...data,
-          value: valueDecimal.toString(),
+          value: data.value,
           date: data.date.toISOString()
         }
       }
@@ -107,7 +108,7 @@ export function UpdateTransactionDialog({
         description: transaction.description,
         type: transaction.type,
         date: new Date(transaction.date),
-        value: transaction.value.toString(),
+        value: transaction.value,
         categoryId: transaction.categoryId
       })
     }
@@ -205,8 +206,9 @@ export function UpdateTransactionDialog({
                 Valor
               </Label>
               <Input 
-                value={formatCurrencyFromString(value)}
+                value={formatCurrency(value)}
                 onChange={handleValueChange}
+                inputMode="numeric"
                 id="value"
                 placeholder="R$ 0,00"
                 className="w-full"
@@ -227,7 +229,7 @@ export function UpdateTransactionDialog({
               <SelectContent>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
-                    {cat.title}
+                    {truncateText(cat.title,40)}
                   </SelectItem>
                 ))}
               </SelectContent>

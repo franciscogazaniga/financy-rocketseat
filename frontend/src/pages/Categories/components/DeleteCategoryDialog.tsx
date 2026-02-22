@@ -4,7 +4,7 @@ import { DELETE_CATEGORY } from "@/lib/graphql/mutations/Category"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import type { Category } from "@/types"
-import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
+import { GET_CATEGORIES, LIST_CATEGORIES } from "@/lib/graphql/queries/Category"
 
 interface DeleteCategoryDialogProps {
   open: boolean
@@ -18,7 +18,7 @@ export function DeleteCategoryDialog({
   category
 }: DeleteCategoryDialogProps) {
   const [ deleteCategory, { loading } ] = useMutation(DELETE_CATEGORY, {
-    refetchQueries: [LIST_CATEGORIES],
+    refetchQueries: [LIST_CATEGORIES, { query: GET_CATEGORIES }],
     onCompleted() {
       toast.success("Categoria deletada com sucesso!")
       onOpenChange(false)

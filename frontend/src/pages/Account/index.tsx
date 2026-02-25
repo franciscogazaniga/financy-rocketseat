@@ -1,4 +1,3 @@
-import logo from "@/assets/Logo.svg"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -16,6 +15,9 @@ import { useForm } from "react-hook-form";
 import { getInitials } from "@/utils/getInitials";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { mockGetUser, } from "@/mocks/user";
+
+const IS_MOCK = import.meta.env.VITE_USE_MOCK === "true"
 
 type FormState = {
   name: string
@@ -46,12 +48,18 @@ export function Account() {
   const userId = useAuthStore((state) => state.user?.id)
 
   const { data } = useQuery<{ getUser: User }>(GET_USER, {
+    skip: IS_MOCK,
     variables: {
       userId
     }
   })
 
-  const user = data?.getUser
+  const user =
+    (IS_MOCK
+      ? mockGetUser.getUser
+      : data?.getUser)
+
+  // const user = data?.getUser
   const setUser = useAuthStore(state => state.setUser)
 
   const [ updateUser, { loading } ] = useMutation<

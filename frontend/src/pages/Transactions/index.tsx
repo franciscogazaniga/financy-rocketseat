@@ -15,6 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { GET_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { TRANSACTION_TYPE_CONFIG } from "@/lib/config/transaction-type.config";
 import { truncateText } from "@/utils/truncateText";
+import { mockPaginatedTransactions } from "@/mocks/transactions";
+import { mockGetCategories } from "@/mocks/categories";
+
+const IS_MOCK = import.meta.env.VITE_USE_MOCK === "true"
 
 export function Transaction() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -59,18 +63,51 @@ export function Transaction() {
     }
   }), [debouncedSearch, pagination, searchType, searchCategoryId, dateRange])
 
-  const { data: transactionsData, loading } = useQuery<{ listTransactions: PaginatedTransactions }>(LIST_TRANSACTIONS, {
+  const { data: transactionsData, loading: queryLoading } = useQuery<{ listTransactions: PaginatedTransactions }>(LIST_TRANSACTIONS, {
       variables,
+      skip: IS_MOCK,
       notifyOnNetworkStatusChange: true,
       fetchPolicy: "cache-and-network",
       nextFetchPolicy: "cache-first"
-      // returnPartialData: true
   })
 
-  const transactions = transactionsData?.listTransactions.data || []
+  const loading = IS_MOCK ? false : queryLoading
+  
+  const finalTransactionsData = IS_MOCK
+  ? (() => {
+      const page = pagination.pageIndex + 1
+      const limit = pagination.pageSize
 
-  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES)
-  const categories = categoriesData?.getCategories || []
+      const start = (page - 1) * limit
+      const end = start + limit
+
+      const paginatedData =
+        mockPaginatedTransactions.listTransactions.data.slice(start, end)
+
+      return {
+        listTransactions: {
+          ...mockPaginatedTransactions.listTransactions,
+          data: paginatedData,
+          page,
+          total: mockPaginatedTransactions.listTransactions.data.length,
+          totalPages: Math.ceil(
+            mockPaginatedTransactions.listTransactions.data.length / limit
+          )
+        }
+      }
+    })()
+  : transactionsData
+
+  const transactions = finalTransactionsData?.listTransactions.data || []
+
+  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES, {
+    skip: IS_MOCK,
+  })
+
+  const categories =
+    (IS_MOCK
+      ? mockGetCategories.getCategories
+      : categoriesData?.getCategories) ?? []
 
   const types = TRANSACTION_TYPE_CONFIG
 
@@ -274,8 +311,8 @@ export function Transaction() {
             !loading &&
             <TransactionTable
               data={transactions}
-              total={transactionsData?.listTransactions.total}
-              totalPages={transactionsData?.listTransactions.totalPages}
+              total={finalTransactionsData?.listTransactions.total}
+              totalPages={finalTransactionsData?.listTransactions.totalPages}
               pagination={pagination}
               onPaginationChange={setPagination}
             />

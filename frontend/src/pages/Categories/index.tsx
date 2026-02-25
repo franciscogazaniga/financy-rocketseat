@@ -9,17 +9,35 @@ import type { Category, CategoryWithStats, TransactionsStats } from "@/types";
 import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { useDialog } from "@/providers/DialogProvider";
 import { GET_TRANSACTIONS_STATS } from "@/lib/graphql/queries/Transaction";
+import { mockCategoriesWithStats } from "@/mocks/categories";
+import { mockTransactionsStats } from "@/mocks/transactions";
+
+const IS_MOCK = import.meta.env.VITE_USE_MOCK === "true"
 
 export function Category() {
   const { openDialog } = useDialog()
-  const { data: categoriesData, loading } = useQuery<{ listCategoriesWithStats: CategoryWithStats[] }>(LIST_CATEGORIES)
-  const categories = categoriesData?.listCategoriesWithStats || []
+
+  const { data: categoriesData, loading: queryLoading } = useQuery<{
+    listCategoriesWithStats: CategoryWithStats[]
+  }>(LIST_CATEGORIES, {
+    skip: IS_MOCK
+  })
+
+  const loading = IS_MOCK ? false : queryLoading
+
+  const categories: CategoryWithStats[] = IS_MOCK
+    ? mockCategoriesWithStats.listCategoriesWithStats
+    : categoriesData?.listCategoriesWithStats ?? []
 
   const { data: transactionsStatsData } = useQuery<{ getTransactionsStats: TransactionsStats }>(GET_TRANSACTIONS_STATS, {
+    skip: IS_MOCK,
     fetchPolicy: "network-only"
   })
 
-  const transactionsStats = transactionsStatsData?.getTransactionsStats
+  const transactionsStats =
+    (IS_MOCK
+      ? mockTransactionsStats.getTransactionsStats
+      : transactionsStatsData?.getTransactionsStats)
 
   return(
     <Page>

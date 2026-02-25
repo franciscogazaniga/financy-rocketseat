@@ -11,6 +11,10 @@ import { LIST_CATEGORIES } from "@/lib/graphql/queries/Category";
 import { Button } from "@/components/ui/button";
 import { useDialog } from "@/providers/DialogProvider";
 import { Link } from "react-router-dom";
+import { mockCategoriesWithStats } from "@/mocks/categories";
+import { mockPaginatedTransactions } from "@/mocks/transactions";
+
+const IS_MOCK = import.meta.env.VITE_USE_MOCK === "true"
 
 export function Dashboard() {
   const { openDialog } = useDialog()
@@ -30,14 +34,35 @@ export function Dashboard() {
 
   const { data: transactionsData } = useQuery<{ listTransactions: PaginatedTransactions }>(LIST_TRANSACTIONS, {
       variables,
+      skip: IS_MOCK,
       notifyOnNetworkStatusChange: true,
       fetchPolicy: "cache-and-network",
       nextFetchPolicy: "cache-first"
   })
-  const transactions = transactionsData?.listTransactions.data || []
 
-  const { data: categoriesData } = useQuery<{ listCategoriesWithStats: CategoryWithStats[] }>(LIST_CATEGORIES)
-  const categories = categoriesData?.listCategoriesWithStats || []
+  const finalTransactionsData = IS_MOCK
+  ? {
+      listTransactions: {
+        ...mockPaginatedTransactions.listTransactions,
+        data: mockPaginatedTransactions.listTransactions.data.slice(
+          0,
+          variables.input.limit
+        )
+      }
+    }
+  : transactionsData
+
+  const transactions = finalTransactionsData?.listTransactions.data || []
+
+  const { data: categoriesData } = useQuery<{
+    listCategoriesWithStats: CategoryWithStats[]
+  }>(LIST_CATEGORIES, {
+    skip: IS_MOCK
+  })
+
+  const categories: CategoryWithStats[] = IS_MOCK
+    ? mockCategoriesWithStats.listCategoriesWithStats
+    : categoriesData?.listCategoriesWithStats ?? []
 
   const topCategories = categories
   .slice()
@@ -48,9 +73,9 @@ export function Dashboard() {
     <Page>
       <div className="space-y-6">
         <div className="flex justify-between gap-6">
-          <Card icon={<Wallet className="mr-2 h-4 w-4 text-purple-base" />} title="Saldo total" value={transactionsData?.listTransactions.totalValue ?? 0}/>
-          <Card icon={<CircleArrowUp className="mr-2 h-4 w-4 text-green-base" />} title="Receitas do mês" value={transactionsData?.listTransactions.totalIncome ?? 0}/>
-          <Card icon={<CircleArrowDown className="mr-2 h-4 w-4 text-red-base" />} title="Despesas do mês" value={transactionsData?.listTransactions.totalExpense ?? 0}/>
+          <Card icon={<Wallet className="mr-2 h-4 w-4 text-purple-base" />} title="Saldo total" value={finalTransactionsData?.listTransactions.totalValue ?? 0}/>
+          <Card icon={<CircleArrowUp className="mr-2 h-4 w-4 text-green-base" />} title="Receitas do mês" value={finalTransactionsData?.listTransactions.totalIncome ?? 0}/>
+          <Card icon={<CircleArrowDown className="mr-2 h-4 w-4 text-red-base" />} title="Despesas do mês" value={finalTransactionsData?.listTransactions.totalExpense ?? 0}/>
         </div>
 
         <div className="flex flex-row justify-between gap-6 items-start">

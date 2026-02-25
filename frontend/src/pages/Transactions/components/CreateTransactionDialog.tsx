@@ -19,6 +19,9 @@ import { useForm } from "react-hook-form"
 import { GET_TRANSACTIONS_STATS, LIST_TRANSACTIONS } from "@/lib/graphql/queries/Transaction"
 import { formatCurrency } from "@/utils/formatCurrency"
 import { truncateText } from "@/utils/truncateText"
+import { mockGetCategories } from "@/mocks/categories"
+
+const IS_MOCK = import.meta.env.VITE_USE_MOCK === "true"
 
 interface CreateTransactionDialogProps {
   open: boolean
@@ -79,8 +82,14 @@ export function CreateTransactionDialog({
 
   const types = TRANSACTION_TYPE_CONFIG
 
-  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES)
-  const categories = categoriesData?.getCategories || []
+  const { data: categoriesData } = useQuery<{ getCategories: Category[] }>(GET_CATEGORIES, {
+    skip: IS_MOCK,
+  })
+
+  const categories =
+    (IS_MOCK
+      ? mockGetCategories.getCategories
+      : categoriesData?.getCategories) ?? []
 
   const onSubmit = handleSubmit((data) => {
     if (!data.date) {

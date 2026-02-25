@@ -1,10 +1,14 @@
 import { apolloClient } from '@/lib/graphql/apollo'
 import { LOGIN } from '@/lib/graphql/mutations/Login'
 import { REGISTER } from '@/lib/graphql/mutations/Register'
+import { mockUser } from '@/mocks/user'
 import type { LoginInput, RegisterInput, User } from '@/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+const IS_MOCK = import.meta.env.VITE_USE_MOCK === "true"
+
+console.log(IS_MOCK)
 type RegisterMutationData = {
   register: {
     token: string
@@ -46,6 +50,18 @@ export const useAuthStore = create<AuthState>() (
         }),
 
       login: async (loginData: LoginInput) => {
+        if (IS_MOCK) {
+          const fakeToken = "mock-jwt-token"
+
+          set({
+            user: mockUser,
+            token: fakeToken,
+            isAuthenticated: true
+          })
+
+          return true
+        }
+
         try {
           const { data } = await apolloClient.mutate<
             LoginMutationData,
